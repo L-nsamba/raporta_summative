@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "121026193684",
+    "project_id": "raporta-97aca",
+    "storage_bucket": "raporta-97aca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:121026193684:android:311676eed6351943a6ba01",
+        "android_client_info": {
+          "package_name": "com.example.raporta_frontend_backend_implementation"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "121026193684-25fmf60eah7oh3sf3hpjfck6g58g0qa3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_SlsAdKElF56ZTAiEm_RtymvP2HXfZoo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "121026193684-25fmf60eah7oh3sf3hpjfck6g58g0qa3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "121026193684-3ai4k1c47tmcqhtqlhd4p2gdg25o0eod.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.raportaFrontendBackendImplementation"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:121026193684:android:235535c138f48d25a6ba01",
+        "android_client_info": {
+          "package_name": "com.raporta.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "121026193684-3aidtgu9avbj1ojek657hu86qg0pm263.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.raporta.app",
+            "certificate_hash": "c7db1b9c37767a78de0848bcc8ce87a809ea2f6d"
+          }
+        },
+        {
+          "client_id": "121026193684-25fmf60eah7oh3sf3hpjfck6g58g0qa3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_SlsAdKElF56ZTAiEm_RtymvP2HXfZoo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "121026193684-25fmf60eah7oh3sf3hpjfck6g58g0qa3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "121026193684-3ai4k1c47tmcqhtqlhd4p2gdg25o0eod.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.raportaFrontendBackendImplementation"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
