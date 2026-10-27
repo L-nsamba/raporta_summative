@@ -1,1 +1,28 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"raporta-97aca","appId":"1:121026193684:android:311676eed6351943a6ba01","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"raporta-97aca","configurations":{"android":"1:121026193684:android:311676eed6351943a6ba01","ios":"1:121026193684:ios:77138f9dbda418f2a6ba01"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "raporta-97aca",
+          "appId": "1:121026193684:android:311676eed6351943a6ba01",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "raporta-97aca",
+          "configurations": {
+            "android": "1:121026193684:android:311676eed6351943a6ba01",
+            "ios": "1:121026193684:ios:77138f9dbda418f2a6ba01"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "nam5",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
