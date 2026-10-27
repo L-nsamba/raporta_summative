@@ -1,13 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:raporta_frontend_backend_implementation/app/app.dart';
 import 'package:raporta_frontend_backend_implementation/firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  runApp(const MyApp());
+  runApp(const RaportaApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -15,10 +14,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Raporta',
-      home: const MyHomePage(),
-    );
+    return MaterialApp(title: 'Raporta', home: const MyHomePage());
   }
 }
 
