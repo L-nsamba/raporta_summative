@@ -17,6 +17,7 @@ class Report {
 
   final ReportStatus status;
   final DeclineReason? declineReason;
+  final String? declineFeedback;
 
   final String? agencyId;
 
@@ -35,6 +36,7 @@ class Report {
     this.photoUrl,
     required this.status,
     this.declineReason,
+    this.declineFeedback,
     this.agencyId,
     required this.createdAt,
     required this.updatedAt,
