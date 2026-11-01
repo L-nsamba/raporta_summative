@@ -15,8 +15,8 @@ abstract class AuthRepository {
     required String password,
   });
 
-  // Sign in with Google
-  Future<AppUser> signinWithGoogle();
+  // Sign in with Google with areaId since every user must be assigned to an area (both existing or new users)
+  Future<AppUser> signInWithGoogle({required String areaId});
 
   // Send email verification
   Future<void> sendEmailVerification();
@@ -26,6 +26,9 @@ abstract class AuthRepository {
 
   // Retrieve currently authenticated user
   Future<AppUser?> getCurrentUser();
+
+  // Login and logout change detections
+  Stream<AppUser?> get authStateChanges;
 
   // Sign out
   Future<void> signOut();
