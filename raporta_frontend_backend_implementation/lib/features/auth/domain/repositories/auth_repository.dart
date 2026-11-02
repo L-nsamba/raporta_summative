@@ -1,6 +1,8 @@
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/entities/app_user.dart';
+// This file lists services the application expects
 
 abstract class AuthRepository {
+  // Returns a pure dart entity, only contains core business logic no JSON or serialization
   // Register a new citizen
   Future<AppUser> registerWithEmail({
     required String name,

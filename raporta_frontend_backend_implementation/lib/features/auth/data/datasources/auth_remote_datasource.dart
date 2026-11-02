@@ -1,7 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/models/user_model.dart';
+// This file lists operations available from Firebase
 
 abstract class AuthRemoteDatasource {
+  // Returns the AppUserModel that is explicitly tied to how the Firestore databse is storing data
   Future<AppUserModel> registerWithEmail({
     required String name,
     required String email,
@@ -23,7 +24,7 @@ abstract class AuthRemoteDatasource {
 
   Future<AppUserModel?> getCurrentUser();
 
-  Stream<User?> get authStateChanges;
+  Stream<AppUserModel?> get authStateChanges;
 
   Future<void> signOut();
 }

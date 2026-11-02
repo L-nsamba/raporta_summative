@@ -5,6 +5,8 @@ import 'package:raporta_frontend_backend_implementation/core/enums/user_role.dar
 import 'package:raporta_frontend_backend_implementation/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/models/user_model.dart';
 
+// This file actually communicates with the Firebase and defines the logic for the operations within auth_remote_datasource.dart
+
 class AuthRemoteDataSourceImpl implements AuthRemoteDatasource {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
@@ -17,7 +19,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDatasource {
   });
 
   @override
-  Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();
+  Stream<AppUserModel?> get authStateChanges {
+    return firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
+      if (firebaseUser == null) {
+        return null;
+      }
+
+      final userDocument = await firestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get();
+
+      if (!userDocument.exists) {
+        return null;
+      }
+
+      return AppUserModel.fromFirestore(userDocument);
+    });
+  }
 
   @override
   Future<AppUserModel> registerWithEmail({
