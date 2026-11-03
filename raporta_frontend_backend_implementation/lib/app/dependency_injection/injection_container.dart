@@ -3,6 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:raporta_frontend_backend_implementation/features/areas/data/datasources/area_remote_datasource.imp.dart';
+import 'package:raporta_frontend_backend_implementation/features/areas/data/datasources/areas_remote_datasource.dart';
+import 'package:raporta_frontend_backend_implementation/features/areas/data/repositories/areas_repository_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/areas/domain/repositories/areas_repository.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/datasources/auth_remote_data_source_imp.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/repositories/auth_repository_impl.dart';
@@ -39,5 +43,15 @@ Future<void> intializeDependencies() async {
   // Repository can be retrieved anywhere through GetIt
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDatasource>()),
+  );
+
+  // Registering the area datasource and implementation
+  sl.registerLazySingleton<AreasRemoteDataSource>(
+    () => AreasRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
+  );
+
+  // Registering the area repository and implementation
+  sl.registerLazySingleton<AreasRepository>(
+    () => AreasRepositoryImpl(remoteDataSource: sl<AreasRemoteDataSource>()),
   );
 }
