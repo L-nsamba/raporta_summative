@@ -1,11 +1,15 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:raporta_frontend_backend_implementation/app/app.dart';
+import 'package:raporta_frontend_backend_implementation/app/dependency_injection/injection_container.dart';
 import 'package:raporta_frontend_backend_implementation/firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  await intializeDependencies();
+
   runApp(const RaportaApp());
 }
 

@@ -2,7 +2,7 @@ import 'package:raporta_frontend_backend_implementation/features/auth/data/datas
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/entities/app_user.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/repositories/auth_repository.dart';
 
-// This file is the coordinator between the services the app expects, and the Firebase operations 
+// This file is the coordinator between the services the app expects, and the Firebase operations
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDatasource remoteDataSource;

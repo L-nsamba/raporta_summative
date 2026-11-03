@@ -19,7 +19,7 @@ abstract class ReportsRepository {
 
   // Soft delete a report
   Future<void> deleteReport(String reportId);
-  
+
   // Retrieve upvotes for a report
   Future<List<Upvotes>> getUpvotes(String reportId);
 
