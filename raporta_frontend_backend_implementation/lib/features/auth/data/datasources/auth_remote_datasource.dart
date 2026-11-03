@@ -1,4 +1,5 @@
 import 'package:raporta_frontend_backend_implementation/features/auth/data/models/user_model.dart';
+
 // This file lists operations available from Firebase
 
 abstract class AuthRemoteDatasource {

@@ -20,9 +20,7 @@ enum DeclineReason {
   static DeclineReason fromFirestore(String value) {
     return DeclineReason.values.firstWhere(
       (reason) => reason.toFirestore() == value,
-      orElse: () => throw FormatException(
-        'Unknown decline reason: $value',
-      ),
+      orElse: () => throw FormatException('Unknown decline reason: $value'),
     );
   }
 }
