@@ -5,7 +5,7 @@ import 'package:raporta_frontend_backend_implementation/features/auth/data/model
 import 'package:raporta_frontend_backend_implementation/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/entities/app_user.dart';
 
-class FakeAuthRemoteDataSource implements AuthRemoteDatasource {
+class FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   AppUserModel? testUser;
   bool signOutCalled = false;
 

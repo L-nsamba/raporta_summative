@@ -2,7 +2,7 @@ import 'package:raporta_frontend_backend_implementation/features/auth/data/model
 
 // This file lists operations available from Firebase
 
-abstract class AuthRemoteDatasource {
+abstract class AuthRemoteDataSource {
   // Returns the AppUserModel that is explicitly tied to how the Firestore databse is storing data
   Future<AppUserModel> registerWithEmail({
     required String name,

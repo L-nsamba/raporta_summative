@@ -7,6 +7,8 @@ import 'package:raporta_frontend_backend_implementation/features/areas/data/data
 import 'package:raporta_frontend_backend_implementation/features/areas/data/datasources/areas_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/areas/data/repositories/areas_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/areas/domain/repositories/areas_repository.dart';
+import 'package:raporta_frontend_backend_implementation/features/areas/domain/usecases/get_area_by_id.dart';
+import 'package:raporta_frontend_backend_implementation/features/areas/domain/usecases/get_areas.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/datasources/auth_remote_data_source_imp.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/repositories/auth_repository_impl.dart';
@@ -32,7 +34,7 @@ Future<void> intializeDependencies() async {
   sl.registerLazySingleton<GoogleSignIn>(() => googleSignIn);
 
   // Tells the GetIt how to construct the remote data source whenever something requests AuthRemoteDatasource
-  sl.registerLazySingleton<AuthRemoteDatasource>(
+  sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(
       firebaseAuth: sl<FirebaseAuth>(),
       firestore: sl<FirebaseFirestore>(),
@@ -42,7 +44,7 @@ Future<void> intializeDependencies() async {
 
   // Repository can be retrieved anywhere through GetIt
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDatasource>()),
+    () => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>()),
   );
 
   // Registering the area datasource and implementation
@@ -54,4 +56,9 @@ Future<void> intializeDependencies() async {
   sl.registerLazySingleton<AreasRepository>(
     () => AreasRepositoryImpl(remoteDataSource: sl<AreasRemoteDataSource>()),
   );
+
+  // Area use cases
+  sl.registerLazySingleton(() => GetAreas(sl<AreasRepository>()));
+
+  sl.registerLazySingleton(() => GetAreaById(sl<AreasRepository>()));
 }

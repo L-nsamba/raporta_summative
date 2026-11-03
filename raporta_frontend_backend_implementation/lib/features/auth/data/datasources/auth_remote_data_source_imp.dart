@@ -7,7 +7,7 @@ import 'package:raporta_frontend_backend_implementation/features/auth/data/model
 
 // This file actually communicates with the Firebase and defines the logic for the operations within auth_remote_datasource.dart
 
-class AuthRemoteDataSourceImpl implements AuthRemoteDatasource {
+class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
   final GoogleSignIn googleSignIn;

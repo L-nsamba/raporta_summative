@@ -5,7 +5,7 @@ import 'package:raporta_frontend_backend_implementation/features/auth/domain/rep
 // This file is the coordinator between the services the app expects, and the Firebase operations
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthRemoteDatasource remoteDataSource;
+  final AuthRemoteDataSource remoteDataSource;
 
   AuthRepositoryImpl({required this.remoteDataSource});
 
