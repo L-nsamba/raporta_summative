@@ -1,6 +1,6 @@
-class Upvotes {
+class Upvote {
   final String userId;
   final DateTime createdAt;
 
-  const Upvotes({required this.userId, required this.createdAt});
+  const Upvote({required this.userId, required this.createdAt});
 }
