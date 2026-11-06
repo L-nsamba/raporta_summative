@@ -3,7 +3,7 @@ import 'package:raporta_frontend_backend_implementation/features/reports/domain/
 
 abstract class ReportsRepository {
   // Creation of a new report
-  Future<void> createReport(Report report);
+  Future<String> createReport(Report report);
 
   // Retrieve all reports
   Future<List<Report>> getReports();
@@ -21,7 +21,7 @@ abstract class ReportsRepository {
   Future<void> deleteReport(String reportId);
 
   // Retrieve upvotes for a report
-  Future<List<Upvotes>> getUpvotes(String reportId);
+  Future<List<Upvote>> getUpvotes(String reportId);
 
   // Add or remove a user's upvote
   Future<void> toggleUpvote({required String reportId, required String userId});

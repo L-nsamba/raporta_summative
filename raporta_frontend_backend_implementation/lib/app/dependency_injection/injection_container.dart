@@ -13,6 +13,11 @@ import 'package:raporta_frontend_backend_implementation/features/auth/data/datas
 import 'package:raporta_frontend_backend_implementation/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/repositories/auth_repository.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/data/repositories/reports_repository_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/repositories/reports_repository.dart';
 
 // sl means service locator
 final sl = GetIt.instance;
@@ -61,4 +66,20 @@ Future<void> intializeDependencies() async {
   sl.registerLazySingleton(() => GetAreas(sl<AreasRepository>()));
 
   sl.registerLazySingleton(() => GetAreaById(sl<AreasRepository>()));
+
+  // Auth bloc
+  sl.registerFactory<AuthBloc>(
+    () => AuthBloc(authRepository: sl<AuthRepository>()),
+  );
+
+  // Reports remote data source
+  sl.registerLazySingleton<ReportsRemoteDataSource>(
+    () => ReportsRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
+  );
+
+  // Reports repository
+  sl.registerLazySingleton<ReportsRepository>(
+    () =>
+        ReportsRepositoryImpl(remoteDataSource: sl<ReportsRemoteDataSource>()),
+  );
 }
