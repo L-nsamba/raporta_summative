@@ -35,12 +35,14 @@ import 'package:raporta_frontend_backend_implementation/features/reports/domain/
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/toggle_upvote.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/update_report.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/bloc/reports_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/my_reports_cubit.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_details_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_form_cubit.dart';
 
 // sl means service locator
 final sl = GetIt.instance;
 
-Future<void> intializeDependencies() async {
+Future<void> initializeDependencies() async {
   // Firebase services
   // a singleton is a lifetime configuration that ensures a class has exactly one instance through the apps lifecycle
   // registerLazySingleton creates an instance when its first requested and resuses it afterwards
@@ -147,4 +149,14 @@ Future<void> intializeDependencies() async {
   sl.registerFactory(() => ReportFormCubit(createReport: sl()));
 
   sl.registerFactory(() => ReportsBloc(getReports: sl()));
+
+  sl.registerFactory(() => MyReportsCubit(getMyReports: sl()));
+
+  sl.registerFactory(
+    () => ReportDetailsCubit(
+      getReportById: sl(),
+      getUpvotes: sl(),
+      toggleUpvote: sl(),
+    ),
+  );
 }
