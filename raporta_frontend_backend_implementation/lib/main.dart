@@ -8,7 +8,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  await intializeDependencies();
+  await initializeDependencies();
 
   runApp(const RaportaApp());
 }
