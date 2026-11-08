@@ -27,13 +27,15 @@ import 'package:raporta_frontend_backend_implementation/features/reports/data/da
 import 'package:raporta_frontend_backend_implementation/features/reports/data/repositories/reports_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/repositories/reports_repository.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/create_report.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/decline_report.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/delete_report.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/forward_report.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_my_reports.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_report_by_id.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_reports.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_upvote.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/toggle_upvote.dart';
-import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/update_report.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/update_report_status.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/bloc/reports_bloc.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/my_reports_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_details_cubit.dart';
@@ -138,7 +140,11 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton(() => GetMyReports(repository: sl()));
 
-  sl.registerLazySingleton(() => UpdateReport(repository: sl()));
+  sl.registerLazySingleton(() => UpdateReportStatus(repository: sl()));
+
+  sl.registerLazySingleton(() => ForwardReport(repository: sl()));
+
+  sl.registerLazySingleton(() => DeclineReport(repository: sl()));
 
   sl.registerLazySingleton(() => DeleteReport(repository: sl()));
 

@@ -1,18 +1,16 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:raporta_frontend_backend_implementation/core/enums/decline_reason.dart';
+import 'package:raporta_frontend_backend_implementation/core/enums/report_status.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource.dart';
 
 import '../../../../core/constants/firestore_collections.dart';
 import '../models/report_model.dart';
 import '../models/upvote_model.dart';
 
-class ReportsRemoteDataSourceImpl
-    implements ReportsRemoteDataSource {
+class ReportsRemoteDataSourceImpl implements ReportsRemoteDataSource {
   final FirebaseFirestore firestore;
 
-  ReportsRemoteDataSourceImpl({
-    required this.firestore,
-  });
+  ReportsRemoteDataSourceImpl({required this.firestore});
 
   CollectionReference<Map<String, dynamic>> get _reportsCollection =>
       firestore.collection(FirestoreCollections.reports);
@@ -81,14 +79,6 @@ class ReportsRemoteDataSourceImpl
   }
 
   @override
-  Future<void> updateReport(ReportModel report) async {
-    await _reportsCollection.doc(report.reportId).update({
-      ...report.toFirestore(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-  }
-
-  @override
   Future<void> deleteReport(String reportId) async {
     await _reportsCollection.doc(reportId).update({
       'deletedAt': FieldValue.serverTimestamp(),
@@ -130,5 +120,74 @@ class ReportsRemoteDataSourceImpl
         });
       }
     });
+  }
+
+  @override
+  Future<void> updateReportStatus({
+    required String reportId,
+    required ReportStatus status,
+  }) async {
+    await _reportsCollection.doc(reportId).update({
+      'status': _statusToFirestore(status),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  @override
+  Future<void> forwardReport({
+    required String reportId,
+    required String agencyId,
+  }) async {
+    await _reportsCollection.doc(reportId).update({
+      'status': 'forwarded',
+      'agencyId': agencyId,
+      'declineReason': null,
+      'declineFeedback': null,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  @override
+  Future<void> declineReport({
+    required String reportId,
+    required DeclineReason reason,
+    String? feedback,
+  }) async {
+    await _reportsCollection.doc(reportId).update({
+      'status': 'declined',
+      'declineReason': _declineReasonToFirestore(reason),
+      'declineFeedback': feedback,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+}
+
+String _statusToFirestore(ReportStatus status) {
+  switch (status) {
+    case ReportStatus.pending:
+      return 'pending';
+    case ReportStatus.underReview:
+      return 'under_review';
+    case ReportStatus.forwarded:
+      return 'forwarded';
+    case ReportStatus.inProgress:
+      return 'in_progress';
+    case ReportStatus.resolved:
+      return 'resolved';
+    case ReportStatus.declined:
+      return 'declined';
+  }
+}
+
+String _declineReasonToFirestore(DeclineReason reason) {
+  switch (reason) {
+    case DeclineReason.duplicate:
+      return 'duplicate';
+    case DeclineReason.unrelated:
+      return 'unrelated';
+    case DeclineReason.alreadyResolved:
+      return 'already_resolved';
+    case DeclineReason.other:
+      return 'other';
   }
 }

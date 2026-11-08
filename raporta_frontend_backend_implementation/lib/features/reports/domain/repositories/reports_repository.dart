@@ -1,3 +1,5 @@
+import 'package:raporta_frontend_backend_implementation/core/enums/decline_reason.dart';
+import 'package:raporta_frontend_backend_implementation/core/enums/report_status.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/entities/report.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/entities/upvotes.dart';
 
@@ -15,7 +17,21 @@ abstract class ReportsRepository {
   Future<List<Report>> getMyReports(String userId);
 
   // Update report information
-  Future<void> updateReport(Report report);
+  Future<void> updateReportStatus({
+    required String reportId,
+    required ReportStatus status,
+  });
+
+  Future<void> forwardReport({
+    required String reportId,
+    required String agencyId,
+  });
+
+  Future<void> declineReport({
+    required String reportId,
+    required DeclineReason reason,
+    String? feedback,
+  });
 
   // Soft delete a report
   Future<void> deleteReport(String reportId);

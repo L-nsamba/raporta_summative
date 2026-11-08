@@ -1,3 +1,5 @@
+import 'package:raporta_frontend_backend_implementation/core/enums/decline_reason.dart';
+import 'package:raporta_frontend_backend_implementation/core/enums/report_status.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/entities/upvotes.dart';
 
@@ -52,8 +54,38 @@ class ReportsRepositoryImpl implements ReportsRepository {
   }
 
   @override
-  Future<void> updateReport(Report report) {
-    return remoteDataSource.updateReport(_toModel(report));
+  Future<void> updateReportStatus({
+    required String reportId,
+    required ReportStatus status,
+  }) {
+    return remoteDataSource.updateReportStatus(
+      reportId: reportId,
+      status: status,
+    );
+  }
+
+  @override
+  Future<void> forwardReport({
+    required String reportId,
+    required String agencyId,
+  }) {
+    return remoteDataSource.forwardReport(
+      reportId: reportId,
+      agencyId: agencyId,
+    );
+  }
+
+  @override
+  Future<void> declineReport({
+    required String reportId,
+    required DeclineReason reason,
+    String? feedback,
+  }) {
+    return remoteDataSource.declineReport(
+      reportId: reportId,
+      reason: reason,
+      feedback: feedback,
+    );
   }
 
   @override
