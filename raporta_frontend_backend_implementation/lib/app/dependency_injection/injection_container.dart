@@ -13,11 +13,29 @@ import 'package:raporta_frontend_backend_implementation/features/auth/data/datas
 import 'package:raporta_frontend_backend_implementation/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/repositories/auth_repository.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/get_current_user.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/register_with_email.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/send_email_verification.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/send_password_reset.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_in_with_email.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_in_with_google.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_out.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/watch_auth_state.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/repositories/reports_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/repositories/reports_repository.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/create_report.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/delete_report.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_my_reports.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_report_by_id.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_reports.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_upvote.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/toggle_upvote.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/update_report.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/bloc/reports_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_form_cubit.dart';
 
 // sl means service locator
 final sl = GetIt.instance;
@@ -69,7 +87,16 @@ Future<void> intializeDependencies() async {
 
   // Auth bloc
   sl.registerFactory<AuthBloc>(
-    () => AuthBloc(authRepository: sl<AuthRepository>()),
+    () => AuthBloc(
+      registerWithEmail: sl<RegisterWithEmail>(),
+      signInWithEmail: sl<SignInWithEmail>(),
+      signInWithGoogle: sl<SignInWithGoogle>(),
+      sendEmailVerification: sl<SendEmailVerification>(),
+      sendPasswordReset: sl<SendPasswordReset>(),
+      getCurrentUser: sl<GetCurrentUser>(),
+      watchAuthState: sl<WatchAuthState>(),
+      signOut: sl<SignOut>(),
+    ),
   );
 
   // Reports remote data source
@@ -82,4 +109,42 @@ Future<void> intializeDependencies() async {
     () =>
         ReportsRepositoryImpl(remoteDataSource: sl<ReportsRemoteDataSource>()),
   );
+
+  // Authentication use cases
+  sl.registerLazySingleton(() => RegisterWithEmail(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => SignInWithEmail(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => SignInWithGoogle(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => SendEmailVerification(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => SendPasswordReset(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => GetCurrentUser(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => WatchAuthState(sl<AuthRepository>()));
+
+  sl.registerLazySingleton(() => SignOut(sl<AuthRepository>()));
+
+  // Reports Use Cases
+  sl.registerLazySingleton(() => CreateReport(repository: sl()));
+
+  sl.registerLazySingleton(() => GetReports(repository: sl()));
+
+  sl.registerLazySingleton(() => GetReportById(repository: sl()));
+
+  sl.registerLazySingleton(() => GetMyReports(repository: sl()));
+
+  sl.registerLazySingleton(() => UpdateReport(repository: sl()));
+
+  sl.registerLazySingleton(() => DeleteReport(repository: sl()));
+
+  sl.registerLazySingleton(() => GetUpvotes(repository: sl()));
+
+  sl.registerLazySingleton(() => ToggleUpvote(repository: sl()));
+
+  sl.registerFactory(() => ReportFormCubit(createReport: sl()));
+
+  sl.registerFactory(() => ReportsBloc(getReports: sl()));
 }
