@@ -19,6 +19,7 @@ class ReportsRepositoryImpl implements ReportsRepository {
       description: report.description,
       lat: report.lat,
       lng: report.lng,
+      locationDescription: report.locationDescription,
       photoUrl: report.photoUrl,
       status: report.status,
       declineReason: report.declineReason,
