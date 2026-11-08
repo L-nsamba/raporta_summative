@@ -12,7 +12,7 @@ class Report {
 
   final double lat;
   final double lng;
-  final String? locationDescription;
+  final String locationDescription;
 
   final String? photoUrl;
 
