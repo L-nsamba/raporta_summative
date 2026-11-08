@@ -12,6 +12,7 @@ class Report {
 
   final double lat;
   final double lng;
+  final String? locationDescription;
 
   final String? photoUrl;
 
@@ -33,6 +34,7 @@ class Report {
     required this.description,
     required this.lat,
     required this.lng,
+    required this.locationDescription,
     this.photoUrl,
     required this.status,
     this.declineReason,

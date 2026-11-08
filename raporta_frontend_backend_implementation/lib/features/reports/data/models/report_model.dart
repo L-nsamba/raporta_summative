@@ -13,6 +13,7 @@ class ReportModel extends Report {
     required super.description,
     required super.lat,
     required super.lng,
+    required super.locationDescription,
     super.photoUrl,
     required super.status,
     super.declineReason,
@@ -40,6 +41,7 @@ class ReportModel extends Report {
       description: data['description'] as String,
       lat: (data['lat'] as num).toDouble(),
       lng: (data['lng'] as num).toDouble(),
+      locationDescription: data['locationDescription'] as String? ?? '',
       photoUrl: data['photoUrl'] as String?,
       status: _parseStatus(data['status'] as String),
       declineReason: _parseDeclineReason(data['declineReason'] as String?),
@@ -59,6 +61,7 @@ class ReportModel extends Report {
       'description': description,
       'lat': lat,
       'lng': lng,
+      'locationDescription': locationDescription,
       'photoUrl': photoUrl,
       'status': _statusToFirestore(status),
       'declineReason': declineReason == null
