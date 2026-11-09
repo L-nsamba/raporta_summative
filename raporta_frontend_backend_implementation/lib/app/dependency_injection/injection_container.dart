@@ -22,6 +22,11 @@ import 'package:raporta_frontend_backend_implementation/features/auth/domain/use
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_out.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/watch_auth_state.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/data/datasources/agencies_remote_datasource.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/data/datasources/agencies_repository_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/domain/repositories/agencies_repository.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/domain/usecases/get_agencies.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/cubit/agencies_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/repositories/reports_repository_impl.dart';
@@ -165,4 +170,19 @@ Future<void> initializeDependencies() async {
       toggleUpvote: sl(),
     ),
   );
+
+  // Remote data source
+  sl.registerLazySingleton<AgenciesRemoteDataSource>(
+    () => AgenciesRemoteDataSourceImpl(firestore: sl()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<AgenciesRepository>(
+    () => AgenciesRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Use case
+  sl.registerLazySingleton(() => GetAgencies(repository: sl()));
+
+  sl.registerFactory(() => AgenciesCubit(getAgencies: sl()));
 }
