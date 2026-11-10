@@ -28,4 +28,9 @@ abstract class AuthRemoteDataSource {
   Stream<AppUserModel?> get authStateChanges;
 
   Future<void> signOut();
+
+  Future<AppUserModel> updateProfile({
+    required String name,
+    required String areaId,
+  });
 }
