@@ -27,6 +27,12 @@ import 'package:raporta_frontend_backend_implementation/features/moderation/data
 import 'package:raporta_frontend_backend_implementation/features/moderation/domain/repositories/agencies_repository.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/domain/usecases/get_agencies.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/cubit/agencies_cubit.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/data/datasources/notifications_remote_datasource.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/data/datasources/notifications_repository_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/domain/repositories/notifications_repository.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/domain/usecases/get_notifications.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/domain/usecases/mark_notification_read.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/domain/usecases/watch_notifications.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/repositories/reports_repository_impl.dart';
@@ -171,6 +177,7 @@ Future<void> initializeDependencies() async {
     ),
   );
 
+  // AGENCIES
   // Remote data source
   sl.registerLazySingleton<AgenciesRemoteDataSource>(
     () => AgenciesRemoteDataSourceImpl(firestore: sl()),
@@ -185,4 +192,22 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => GetAgencies(repository: sl()));
 
   sl.registerFactory(() => AgenciesCubit(getAgencies: sl()));
+
+  // NOTIFICATIONS
+  // Remote data source
+  sl.registerLazySingleton<NotificationsRemoteDataSource>(
+    () => NotificationsRemoteDataSourceImpl(firestore: sl()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetNotifications(repository: sl()));
+
+  sl.registerLazySingleton(() => WatchNotifications(repository: sl()));
+
+  sl.registerLazySingleton(() => MarkNotificationRead(repository: sl()));
 }
