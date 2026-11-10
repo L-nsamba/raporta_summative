@@ -64,6 +64,14 @@ class FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   Future<void> signOut() async {
     signOutCalled = true;
   }
+
+  @override
+  Future<AppUserModel> updateProfile({
+    required String name,
+    required String areaId,
+  }) {
+    return updateProfile(name: name, areaId: areaId);
+  }
 }
 
 void main() {
