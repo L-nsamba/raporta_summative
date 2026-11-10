@@ -30,6 +30,9 @@ abstract class AuthRepository {
   // Retrieve currently authenticated user
   Future<AppUser?> getCurrentUser();
 
+  // Update editable account profile fields.
+  Future<AppUser> updateProfile({required String name, required String areaId});
+
   // Login and logout change detections
   Stream<AppUser?> get authStateChanges;
 

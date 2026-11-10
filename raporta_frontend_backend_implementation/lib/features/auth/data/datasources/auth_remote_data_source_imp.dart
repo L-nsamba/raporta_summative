@@ -221,4 +221,33 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     await firebaseAuth.signOut();
     await googleSignIn.signOut();
   }
+
+  @override
+  Future<AppUserModel> updateProfile({
+    required String name,
+    required String areaId,
+  }) async {
+    // Get the currently authenticated user
+    final firebaseUser = firebaseAuth.currentUser;
+
+    if (firebaseUser == null) {
+      throw Exception('No authenticated user found.');
+    }
+
+    // Reference the user's Firestore profile
+    final userReference = firestore.collection('users').doc(firebaseUser.uid);
+
+    // Update only the editable profile fields
+    await userReference.update({
+      'name': name.trim(),
+      'areaId': areaId,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    // Retrieve the updated profile
+    final updatedDocument = await userReference.get();
+
+    // Convert and return the updated user
+    return AppUserModel.fromFirestore(updatedDocument);
+  }
 }

@@ -69,4 +69,12 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> signOut() async {
     await remoteDataSource.signOut();
   }
+
+  @override
+  Future<AppUser> updateProfile({
+    required String name,
+    required String areaId,
+  }) {
+    return remoteDataSource.updateProfile(name: name, areaId: areaId);
+  }
 }

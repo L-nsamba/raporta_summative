@@ -1,0 +1,23 @@
+{
+  "name": "raporta_frontend_backend_implementation",
+  "version": "1.0.0",
+  "description": "A new Flutter project.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+"scripts": {
+  "test": "vitest run",
+  "test:watch": "vitest"
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase": "^13.2.0",
+    "vitest": "^5.1.0"
+  }
+}

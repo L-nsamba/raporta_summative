@@ -1,15 +1,40 @@
 import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/get_current_user.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/register_with_email.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/send_email_verification.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/send_password_reset.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_in_with_email.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_in_with_google.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_out.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/watch_auth_state.dart';
+
 import '../../domain/entities/app_user.dart';
-import '../../domain/repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepository authRepository;
+  final RegisterWithEmail registerWithEmail;
+  final SignInWithEmail signInWithEmail;
+  final SignInWithGoogle signInWithGoogle;
+  final SendEmailVerification sendEmailVerification;
+  final SendPasswordReset sendPasswordReset;
+  final GetCurrentUser getCurrentUser;
+  final WatchAuthState watchAuthState;
+  final SignOut signOut;
   StreamSubscription<AppUser?>? _authSubscription;
 
-  AuthBloc({required this.authRepository}) : super(const AuthState()) {
+  AuthBloc({
+    required this.registerWithEmail,
+    required this.signInWithEmail,
+    required this.signInWithGoogle,
+    required this.sendEmailVerification,
+    required this.sendPasswordReset,
+    required this.getCurrentUser,
+    required this.watchAuthState,
+    required this.signOut,
+  }) : super(const AuthState()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthStatusChanged>(_onAuthStatusChanged);
     on<AuthStreamFailed>(_onAuthStreamFailed);
@@ -28,7 +53,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(status: AuthStatus.checking, clearMessages: true));
     await _authSubscription?.cancel();
-    _authSubscription = authRepository.authStateChanges.listen(
+    _authSubscription = watchAuthState().listen(
       (user) {
         add(AuthStatusChanged(user));
       },
@@ -71,7 +96,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
     try {
-      final user = await authRepository.registerWithEmail(
+      final user = await registerWithEmail(
         name: event.name,
         email: event.email,
         password: event.password,
@@ -107,7 +132,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
     try {
-      final user = await authRepository.signInWithEmail(
+      final user = await signInWithEmail(
         email: event.email,
         password: event.password,
       );
@@ -141,7 +166,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
     try {
-      final user = await authRepository.signInWithGoogle(areaId: event.areaId);
+      final user = await signInWithGoogle(areaId: event.areaId);
       emit(
         state.copyWith(
           status: AuthStatus.authenticated,
@@ -172,7 +197,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
     try {
-      await authRepository.sendPasswordReset(event.email);
+      await sendPasswordReset(event.email);
       emit(
         state.copyWith(
           operationStatus: AuthOperationStatus.success,
@@ -201,7 +226,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
     try {
-      await authRepository.sendEmailVerification();
+      await sendEmailVerification();
       emit(
         state.copyWith(
           operationStatus: AuthOperationStatus.success,
@@ -230,7 +255,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
     try {
-      await authRepository.signOut();
+      await signOut();
       emit(
         state.copyWith(
           status: AuthStatus.unauthenticated,
