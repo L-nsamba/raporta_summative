@@ -20,6 +20,7 @@ import 'package:raporta_frontend_backend_implementation/features/auth/domain/use
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_in_with_email.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_in_with_google.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_out.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/update_profile.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/watch_auth_state.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/data/datasources/agencies_remote_datasource.dart';
@@ -33,6 +34,13 @@ import 'package:raporta_frontend_backend_implementation/features/notifications/d
 import 'package:raporta_frontend_backend_implementation/features/notifications/domain/usecases/get_notifications.dart';
 import 'package:raporta_frontend_backend_implementation/features/notifications/domain/usecases/mark_notification_read.dart';
 import 'package:raporta_frontend_backend_implementation/features/notifications/domain/usecases/watch_notifications.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/data/datasources/preferences_local_datasource.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/data/repositories/preferences_repository_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/domain/repositories/preferences_repository.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/domain/usecases/get_preferences.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/domain/usecases/save_preferences.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/presentation/bloc/preferences_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/repositories/reports_repository_impl.dart';
@@ -51,6 +59,7 @@ import 'package:raporta_frontend_backend_implementation/features/reports/present
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/my_reports_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_details_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_form_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // sl means service locator
 final sl = GetIt.instance;
@@ -210,4 +219,34 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => WatchNotifications(repository: sl()));
 
   sl.registerLazySingleton(() => MarkNotificationRead(repository: sl()));
+
+  // NOTIFICATIONS
+  sl.registerFactory(
+    () =>
+        NotificationsBloc(watchNotifications: sl(), markNotificationRead: sl()),
+  );
+
+  // PROFILE - PREFERENCES
+
+  sl.registerLazySingleton<SharedPreferencesAsync>(
+    () => SharedPreferencesAsync(),
+  );
+
+  sl.registerLazySingleton<PreferencesLocalDataSource>(
+    () => PreferencesLocalDataSourceImpl(preferences: sl()),
+  );
+
+  sl.registerLazySingleton<PreferencesRepository>(
+    () => PreferencesRepositoryImpl(localDataSource: sl()),
+  );
+
+  sl.registerLazySingleton(() => GetPreferences(repository: sl()));
+
+  sl.registerLazySingleton(() => SavePreferences(repository: sl()));
+
+  sl.registerFactory(
+    () => PreferencesCubit(getPreferences: sl(), savePreferences: sl()),
+  );
+
+  sl.registerLazySingleton(() => UpdateProfile(repository: sl()));
 }
