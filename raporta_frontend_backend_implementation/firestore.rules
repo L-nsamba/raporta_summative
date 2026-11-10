@@ -339,19 +339,40 @@ service cloud.firestore {
       }
     }
 
-    // ------------------------------------
-    // Notifications
-    // ------------------------------------
+  // ------------------------------------
+  // Notifications
+  // ------------------------------------
 
-    match /notifications/{notificationId} {
+  match /notifications/{notificationId} {
 
-      allow read: if isSignedIn()
-        && resource.data.userId == request.auth.uid;
+    // Users can only read their own notifications.
+    allow read: if isSignedIn()
+      && resource.data.userId == request.auth.uid;
 
-      // Notification creation and modification are
-      // reserved for trusted backend operations.
-      allow write: if false;
-    }
+    // Notification creation is reserved for trusted backend operations.
+    allow create: if false;
+
+    // Users may only mark their own notifications as read.
+    allow update: if isSignedIn()
+      && resource.data.userId == request.auth.uid
+
+      // Only these two fields may change.
+      && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly(['read', 'updatedAt'])
+
+      // Notification must currently be unread.
+      && resource.data.read == false
+
+      // The new read status must be true.
+      && request.resource.data.read == true
+
+      // Timestamp must reflect the server request time.
+      && request.resource.data.updatedAt == request.time;
+
+    // Users cannot delete notifications.
+    allow delete: if false;
+  }
 
     // ------------------------------------
     // Default deny
