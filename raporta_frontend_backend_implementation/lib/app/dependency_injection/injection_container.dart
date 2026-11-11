@@ -232,12 +232,12 @@ Future<void> initializeDependencies() async {
     () => SharedPreferencesAsync(),
   );
 
-  sl.registerLazySingleton<PreferencesLocalDataSource>(
-    () => PreferencesLocalDataSourceImpl(preferences: sl()),
+  sl.registerLazySingleton<PreferencesLocalDatasource>(
+    () => PreferencesLocalDatasourceImpl(preferences: sl()),
   );
 
   sl.registerLazySingleton<PreferencesRepository>(
-    () => PreferencesRepositoryImpl(localDataSource: sl()),
+    () => PreferencesRepositoryImpl(localDatasource: sl()),
   );
 
   sl.registerLazySingleton(() => GetPreferences(repository: sl()));
