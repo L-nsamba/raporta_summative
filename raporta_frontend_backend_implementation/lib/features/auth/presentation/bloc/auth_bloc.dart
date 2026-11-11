@@ -1,16 +1,14 @@
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/get_current_user.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/register_with_email.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/send_email_verification.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/send_password_reset.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_in_with_email.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_in_with_google.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_out.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/watch_auth_state.dart';
-
 import '../../domain/entities/app_user.dart';
+import '../../domain/usecases/get_current_user.dart';
+import '../../domain/usecases/register_with_email.dart';
+import '../../domain/usecases/send_email_verification.dart';
+import '../../domain/usecases/send_password_reset.dart';
+import '../../domain/usecases/sign_in_with_email.dart';
+import '../../domain/usecases/sign_in_with_google.dart';
+import '../../domain/usecases/sign_out.dart';
+import '../../domain/usecases/watch_auth_state.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -46,7 +44,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogoutRequested>(_onLogoutRequested);
   }
 
-  // check and monitor authentication state
   Future<void> _onAuthCheckRequested(
     AuthCheckRequested event,
     Emitter<AuthState> emit,
@@ -84,7 +81,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  // registration
   Future<void> _onRegisterRequested(
     AuthRegisterRequested event,
     Emitter<AuthState> emit,
@@ -120,7 +116,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // email login
   Future<void> _onLoginRequested(
     AuthLoginRequested event,
     Emitter<AuthState> emit,
@@ -154,7 +149,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // google login
   Future<void> _onGoogleSignInRequested(
     AuthGoogleSignInRequested event,
     Emitter<AuthState> emit,
@@ -185,7 +179,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // password reset
   Future<void> _onPasswordResetRequested(
     AuthPasswordResetRequested event,
     Emitter<AuthState> emit,
@@ -214,7 +207,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // email verification
   Future<void> _onEmailVerificationRequested(
     AuthEmailVerificationRequested event,
     Emitter<AuthState> emit,
@@ -243,7 +235,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // logout
   Future<void> _onLogoutRequested(
     AuthLogoutRequested event,
     Emitter<AuthState> emit,
