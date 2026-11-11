@@ -77,5 +77,16 @@ class AuthPasswordResetRequested extends AuthEvent {
 // email verification
 class AuthEmailVerificationRequested extends AuthEvent {}
 
+// Update the authenticated user's profile
+class AuthProfileUpdateRequested extends AuthEvent {
+  final String name;
+  final String areaId;
+
+  const AuthProfileUpdateRequested({required this.name, required this.areaId});
+
+  @override
+  List<Object?> get props => [name, areaId];
+}
+
 // logout
 class AuthLogoutRequested extends AuthEvent {}

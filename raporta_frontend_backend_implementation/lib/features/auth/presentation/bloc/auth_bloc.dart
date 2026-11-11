@@ -1,16 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/get_current_user.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/register_with_email.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/send_email_verification.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/send_password_reset.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_in_with_email.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_in_with_google.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/sign_out.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/watch_auth_state.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/update_profile.dart';
 
 import '../../domain/entities/app_user.dart';
+import '../../domain/usecases/get_current_user.dart';
+import '../../domain/usecases/register_with_email.dart';
+import '../../domain/usecases/send_email_verification.dart';
+import '../../domain/usecases/send_password_reset.dart';
+import '../../domain/usecases/sign_in_with_email.dart';
+import '../../domain/usecases/sign_in_with_google.dart';
+import '../../domain/usecases/sign_out.dart';
+import '../../domain/usecases/watch_auth_state.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -23,6 +24,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final GetCurrentUser getCurrentUser;
   final WatchAuthState watchAuthState;
   final SignOut signOut;
+  final UpdateProfile updateProfile;
+
   StreamSubscription<AppUser?>? _authSubscription;
 
   AuthBloc({
@@ -34,6 +37,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.getCurrentUser,
     required this.watchAuthState,
     required this.signOut,
+    required this.updateProfile,
   }) : super(const AuthState()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthStatusChanged>(_onAuthStatusChanged);
@@ -43,10 +47,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthGoogleSignInRequested>(_onGoogleSignInRequested);
     on<AuthPasswordResetRequested>(_onPasswordResetRequested);
     on<AuthEmailVerificationRequested>(_onEmailVerificationRequested);
+    on<AuthProfileUpdateRequested>(_onProfileUpdateRequested);
     on<AuthLogoutRequested>(_onLogoutRequested);
   }
 
-  // check and monitor authentication state
   Future<void> _onAuthCheckRequested(
     AuthCheckRequested event,
     Emitter<AuthState> emit,
@@ -84,7 +88,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  // registration
   Future<void> _onRegisterRequested(
     AuthRegisterRequested event,
     Emitter<AuthState> emit,
@@ -120,7 +123,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // email login
   Future<void> _onLoginRequested(
     AuthLoginRequested event,
     Emitter<AuthState> emit,
@@ -154,7 +156,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // google login
   Future<void> _onGoogleSignInRequested(
     AuthGoogleSignInRequested event,
     Emitter<AuthState> emit,
@@ -185,7 +186,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // password reset
   Future<void> _onPasswordResetRequested(
     AuthPasswordResetRequested event,
     Emitter<AuthState> emit,
@@ -214,7 +214,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // email verification
   Future<void> _onEmailVerificationRequested(
     AuthEmailVerificationRequested event,
     Emitter<AuthState> emit,
@@ -243,7 +242,64 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // logout
+  Future<void> _onProfileUpdateRequested(
+    AuthProfileUpdateRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    if (state.status != AuthStatus.authenticated || state.user == null) {
+      emit(
+        state.copyWith(
+          operationStatus: AuthOperationStatus.failure,
+          clearMessages: true,
+          errorMessage: 'You must be signed in to update your profile.',
+        ),
+      );
+      return;
+    }
+
+    if (state.operationStatus == AuthOperationStatus.loading) {
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        operationStatus: AuthOperationStatus.loading,
+        clearMessages: true,
+      ),
+    );
+
+    try {
+      final updatedUser = await updateProfile(
+        name: event.name,
+        areaId: event.areaId,
+      );
+
+      // Ensure the account has not changed while the request was running.
+      if (state.user?.userId != updatedUser.userId ||
+          state.status != AuthStatus.authenticated) {
+        return;
+      }
+
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          operationStatus: AuthOperationStatus.success,
+          user: updatedUser,
+          clearMessages: true,
+          successMessage: 'Profile updated successfully.',
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          operationStatus: AuthOperationStatus.failure,
+          clearMessages: true,
+          errorMessage: 'Unable to update your profile. Please try again.',
+        ),
+      );
+    }
+  }
+
   Future<void> _onLogoutRequested(
     AuthLogoutRequested event,
     Emitter<AuthState> emit,

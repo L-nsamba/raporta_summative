@@ -170,6 +170,8 @@ service cloud.firestore {
           'updatedAt'
         ])
         && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
         && request.resource.data.email is string
         && request.resource.data.areaId is string
         && isValidArea(request.resource.data.areaId)
