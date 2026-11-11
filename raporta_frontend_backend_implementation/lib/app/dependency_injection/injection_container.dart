@@ -234,7 +234,10 @@ Future<void> initializeDependencies() async {
   );
 
   sl.registerLazySingleton<PreferencesLocalDatasource>(
-    () => PreferencesLocalDatasourceImpl(preferences: sl()),
+    () => PreferencesLocalDatasourceImpl(
+      preferences: sl<SharedPreferencesAsync>(),
+      firebaseAuth: sl<FirebaseAuth>(),
+    ),
   );
 
   sl.registerLazySingleton<PreferencesRepository>(

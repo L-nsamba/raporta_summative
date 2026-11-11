@@ -5,6 +5,7 @@ import 'package:raporta_frontend_backend_implementation/app/router/app_router.da
 import 'package:raporta_frontend_backend_implementation/core/theme/app_theme.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/bloc/auth_event.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/presentation/bloc/auth_state.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/presentation/bloc/preferences_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/presentation/bloc/preferences_state.dart';
 
@@ -22,21 +23,29 @@ class RaportaApp extends StatelessWidget {
           create: (_) => sl<PreferencesCubit>()..loadPreferences(),
         ),
       ],
-      child: BlocBuilder<PreferencesCubit, PreferencesState>(
-        buildWhen: (previous, current) =>
-            previous.preferences.isDarkMode != current.preferences.isDarkMode,
-        builder: (context, state) {
-          return MaterialApp.router(
-            title: 'Raporta',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
-            themeMode: state.preferences.isDarkMode
-                ? ThemeMode.dark
-                : ThemeMode.light,
-            routerConfig: AppRouter.router,
-          );
+      child: BlocListener<AuthBloc, AuthState>(
+        listenWhen: (previous, current) {
+          return previous.user?.userId != current.user?.userId;
         },
+        listener: (context, state) {
+          context.read<PreferencesCubit>().loadPreferences();
+        },
+        child: BlocBuilder<PreferencesCubit, PreferencesState>(
+          buildWhen: (previous, current) =>
+              previous.preferences.isDarkMode != current.preferences.isDarkMode,
+          builder: (context, state) {
+            return MaterialApp.router(
+              title: 'Raporta',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              themeMode: state.preferences.isDarkMode
+                  ? ThemeMode.dark
+                  : ThemeMode.light,
+              routerConfig: AppRouter.router,
+            );
+          },
+        ),
       ),
     );
   }
