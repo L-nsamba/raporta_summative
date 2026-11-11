@@ -1,19 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/entities/app_user.dart';
 
-enum AuthStatus {
-  unknown,
-  checking,
-  authenticated,
-  unauthenticated,
-}
+enum AuthStatus { unknown, checking, authenticated, unauthenticated }
 
-enum AuthOperationStatus {
-  initial,
-  loading,
-  success,
-  failure,
-}
+enum AuthOperationStatus { initial, loading, success, failure }
 
 class AuthState extends Equatable {
   final AuthStatus status;
@@ -43,18 +33,19 @@ class AuthState extends Equatable {
       status: status ?? this.status,
       operationStatus: operationStatus ?? this.operationStatus,
       user: clearUser ? null : (user ?? this.user),
-      errorMessage: clearMessages ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: errorMessage ?? (clearMessages ? null : this.errorMessage),
+
       successMessage:
-          clearMessages ? null : (successMessage ?? this.successMessage),
+          successMessage ?? (clearMessages ? null : this.successMessage),
     );
   }
 
   @override
   List<Object?> get props => [
-        status,
-        operationStatus,
-        user,
-        errorMessage,
-        successMessage,
-      ];
+    status,
+    operationStatus,
+    user,
+    errorMessage,
+    successMessage,
+  ];
 }
