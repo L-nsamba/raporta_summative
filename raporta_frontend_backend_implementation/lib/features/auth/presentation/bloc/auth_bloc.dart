@@ -1,8 +1,5 @@
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/update_profile.dart';
-
 import '../../domain/entities/app_user.dart';
 import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/register_with_email.dart';
@@ -237,64 +234,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         state.copyWith(
           operationStatus: AuthOperationStatus.failure,
           errorMessage: 'Unable to send verification email.',
-        ),
-      );
-    }
-  }
-
-  Future<void> _onProfileUpdateRequested(
-    AuthProfileUpdateRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    if (state.status != AuthStatus.authenticated || state.user == null) {
-      emit(
-        state.copyWith(
-          operationStatus: AuthOperationStatus.failure,
-          clearMessages: true,
-          errorMessage: 'You must be signed in to update your profile.',
-        ),
-      );
-      return;
-    }
-
-    if (state.operationStatus == AuthOperationStatus.loading) {
-      return;
-    }
-
-    emit(
-      state.copyWith(
-        operationStatus: AuthOperationStatus.loading,
-        clearMessages: true,
-      ),
-    );
-
-    try {
-      final updatedUser = await updateProfile(
-        name: event.name,
-        areaId: event.areaId,
-      );
-
-      // Ensure the account has not changed while the request was running.
-      if (state.user?.userId != updatedUser.userId ||
-          state.status != AuthStatus.authenticated) {
-        return;
-      }
-
-      emit(
-        state.copyWith(
-          status: AuthStatus.authenticated,
-          operationStatus: AuthOperationStatus.success,
-          user: updatedUser,
-          clearMessages: true,
-          successMessage: 'Profile updated successfully.',
-        ),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          operationStatus: AuthOperationStatus.failure,
-          clearMessages: true,
-          errorMessage: 'Unable to update your profile. Please try again.',
         ),
       );
     }
