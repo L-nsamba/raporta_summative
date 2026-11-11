@@ -119,6 +119,7 @@ Future<void> initializeDependencies() async {
       sendPasswordReset: sl<SendPasswordReset>(),
       getCurrentUser: sl<GetCurrentUser>(),
       watchAuthState: sl<WatchAuthState>(),
+      updateProfile: sl(),
       signOut: sl<SignOut>(),
     ),
   );
