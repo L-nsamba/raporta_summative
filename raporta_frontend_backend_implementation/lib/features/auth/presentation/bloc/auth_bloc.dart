@@ -242,6 +242,36 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
+  Future<void> _onLogoutRequested(
+    AuthLogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        operationStatus: AuthOperationStatus.loading,
+        clearMessages: true,
+      ),
+    );
+    try {
+      await signOut();
+      emit(
+        state.copyWith(
+          status: AuthStatus.unauthenticated,
+          operationStatus: AuthOperationStatus.success,
+          clearUser: true,
+          successMessage: 'Logged out successfully.',
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          operationStatus: AuthOperationStatus.failure,
+          errorMessage: 'Logout failed. Please try again.',
+        ),
+      );
+    }
+  }
+
   Future<void> _onProfileUpdateRequested(
     AuthProfileUpdateRequested event,
     Emitter<AuthState> emit,
@@ -295,36 +325,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           operationStatus: AuthOperationStatus.failure,
           clearMessages: true,
           errorMessage: 'Unable to update your profile. Please try again.',
-        ),
-      );
-    }
-  }
-
-  Future<void> _onLogoutRequested(
-    AuthLogoutRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(
-      state.copyWith(
-        operationStatus: AuthOperationStatus.loading,
-        clearMessages: true,
-      ),
-    );
-    try {
-      await signOut();
-      emit(
-        state.copyWith(
-          status: AuthStatus.unauthenticated,
-          operationStatus: AuthOperationStatus.success,
-          clearUser: true,
-          successMessage: 'Logged out successfully.',
-        ),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          operationStatus: AuthOperationStatus.failure,
-          errorMessage: 'Logout failed. Please try again.',
         ),
       );
     }
