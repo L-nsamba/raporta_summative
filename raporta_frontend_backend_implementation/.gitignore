@@ -62,3 +62,14 @@ app.*.map.json
 *.keystore
 
 build/
+
+# Node.js
+security-tests/node_modules/
+security-tests/coverage/
+security-tests/.nyc_output/
+
+# Environment files
+.env
+.env.*
+
+**/node_modules/

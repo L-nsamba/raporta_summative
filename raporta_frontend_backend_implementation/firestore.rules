@@ -1,16 +1,387 @@
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Areas are public so the registration dropdown can load before sign-in
+    // ------------------------------------
+    // Authentication and role helpers
+    // ------------------------------------
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userProfileExists() {
+      return isSignedIn()
+        && exists(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        );
+    }
+
+    function currentUserRole() {
+      return get(
+        /databases/$(database)/documents/users/$(request.auth.uid)
+      ).data.role;
+    }
+
+    function isCitizen() {
+      return userProfileExists()
+        && currentUserRole() == 'citizen';
+    }
+
+    function isOfficial() {
+      return userProfileExists()
+        && currentUserRole() == 'official';
+    }
+
+    // ------------------------------------
+    // Reference data helpers
+    // ------------------------------------
+
+    function isValidArea(areaId) {
+      return areaId is string
+        && exists(
+          /databases/$(database)/documents/areas/$(areaId)
+        );
+    }
+
+    function isValidAgency(agencyId) {
+      return agencyId is string
+        && exists(
+          /databases/$(database)/documents/agencies/$(agencyId)
+        )
+        && get(
+          /databases/$(database)/documents/agencies/$(agencyId)
+        ).data.agencyId == agencyId;
+    }
+
+    function isActiveReport() {
+      return 'deletedAt' in resource.data
+        && resource.data.deletedAt == null;
+    }
+
+    // ------------------------------------
+    // Report status transition validation
+    // ------------------------------------
+
+    function isValidStatusTransition(oldStatus, newStatus) {
+      return
+        (oldStatus == 'pending'
+          && newStatus in ['under_review', 'declined'])
+        ||
+        (oldStatus == 'under_review'
+          && newStatus in ['forwarded', 'declined'])
+        ||
+        (oldStatus == 'forwarded'
+          && newStatus in ['in_progress', 'declined'])
+        ||
+        (oldStatus == 'in_progress'
+          && newStatus in ['resolved', 'declined']);
+    }
+
+    function hasValidModerationData() {
+      return
+        (
+          request.resource.data.status == 'declined'
+          && request.resource.data.declineReason in [
+            'duplicate',
+            'unrelated',
+            'already_resolved',
+            'other'
+          ]
+          && (
+            request.resource.data.declineFeedback == null
+            || request.resource.data.declineFeedback is string
+          )
+        )
+        ||
+        (
+          request.resource.data.status != 'declined'
+          && request.resource.data.declineReason == null
+          && request.resource.data.declineFeedback == null
+        );
+    }
+
+    function hasValidAgencyAssignment() {
+      return
+        (
+          request.resource.data.status in [
+            'forwarded',
+            'in_progress',
+            'resolved'
+          ]
+          && isValidAgency(request.resource.data.agencyId)
+        )
+        ||
+        (
+          request.resource.data.status in [
+            'pending',
+            'under_review',
+            'declined'
+          ]
+          && (
+            request.resource.data.agencyId == null
+            || isValidAgency(request.resource.data.agencyId)
+          )
+        );
+    }
+
+    // ------------------------------------
+    // Areas
+    // ------------------------------------
+
     match /areas/{areaId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // Interim rule: everything else needs a signed-in user
+    // ------------------------------------
+    // Agencies
+    // ------------------------------------
+
+    match /agencies/{agencyId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // ------------------------------------
+    // User profiles
+    // ------------------------------------
+
+    match /users/{userId} {
+
+      // Users can read their own profile.
+      allow read: if isSignedIn()
+        && request.auth.uid == userId;
+
+      // Public registration can only create citizen profiles.
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.userId == userId
+        && request.resource.data.role == 'citizen'
+        && request.resource.data.keys().hasOnly([
+          'userId',
+          'name',
+          'email',
+          'role',
+          'areaId',
+          'createdAt',
+          'updatedAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string
+        && request.resource.data.areaId is string
+        && isValidArea(request.resource.data.areaId)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      // Users can update basic profile information only.
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            'name',
+            'areaId',
+            'updatedAt'
+          ])
+        && request.resource.data.name is string
+        && request.resource.data.areaId is string
+        && isValidArea(request.resource.data.areaId)
+        && request.resource.data.updatedAt == request.time;
+
+      // Profiles cannot be deleted from the client.
+      allow delete: if false;
+    }
+
+    // ------------------------------------
+    // Reports
+    // ------------------------------------
+
+    match /reports/{reportId} {
+
+      // Authenticated users can read active reports.
+      allow read: if isSignedIn()
+        && isActiveReport();
+
+      // Citizens can create their own reports.
+      allow create: if isCitizen()
+        && request.resource.data.keys().hasOnly([
+          'userId',
+          'areaId',
+          'category',
+          'description',
+          'lat',
+          'lng',
+          'locationDescription',
+          'photoUrl',
+          'status',
+          'declineReason',
+          'declineFeedback',
+          'agencyId',
+          'createdAt',
+          'updatedAt',
+          'deletedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'userId',
+          'areaId',
+          'category',
+          'description',
+          'lat',
+          'lng',
+          'locationDescription',
+          'photoUrl',
+          'status',
+          'declineReason',
+          'declineFeedback',
+          'agencyId',
+          'createdAt',
+          'updatedAt',
+          'deletedAt'
+        ])
+        && request.resource.data.userId == request.auth.uid
+        && isValidArea(request.resource.data.areaId)
+        && request.resource.data.category is string
+        && request.resource.data.description is string
+        && request.resource.data.description.size() > 0
+        && request.resource.data.lat is number
+        && request.resource.data.lat >= -90
+        && request.resource.data.lat <= 90
+        && request.resource.data.lng is number
+        && request.resource.data.lng >= -180
+        && request.resource.data.lng <= 180
+        && request.resource.data.locationDescription is string
+        && request.resource.data.locationDescription.size() > 0
+        && (
+          request.resource.data.photoUrl == null
+          || request.resource.data.photoUrl is string
+        )
+        && request.resource.data.status == 'pending'
+        && request.resource.data.declineReason == null
+        && request.resource.data.declineFeedback == null
+        && request.resource.data.agencyId == null
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.deletedAt == null;
+
+      // Officials can update moderation-related fields only.
+      allow update: if isOfficial()
+        && isActiveReport()
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            'status',
+            'agencyId',
+            'declineReason',
+            'declineFeedback',
+            'updatedAt'
+          ])
+        && request.resource.data.updatedAt == request.time
+        && isValidStatusTransition(
+          resource.data.status,
+          request.resource.data.status
+        )
+        && hasValidAgencyAssignment()
+        && hasValidModerationData();
+
+      // Citizens can soft-delete their own pending reports.
+      allow update: if isCitizen()
+        && resource.data.userId == request.auth.uid
+        && resource.data.status == 'pending'
+        && isActiveReport()
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            'deletedAt',
+            'updatedAt'
+          ])
+        && request.resource.data.deletedAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      // Hard deletion is not allowed from the client.
+      allow delete: if false;
+
+      // ------------------------------------
+      // Report upvotes
+      // ------------------------------------
+
+      match /upvotes/{userId} {
+
+        function parentReportIsActive() {
+          return exists(
+            /databases/$(database)/documents/reports/$(reportId)
+          )
+          && get(
+            /databases/$(database)/documents/reports/$(reportId)
+          ).data.deletedAt == null;
+        }
+
+        allow read: if isSignedIn()
+          && parentReportIsActive();
+
+        allow create: if isSignedIn()
+          && request.auth.uid == userId
+          && parentReportIsActive()
+          && request.resource.data.keys().hasOnly([
+            'userId',
+            'createdAt'
+          ])
+          && request.resource.data.userId == userId
+          && request.resource.data.createdAt == request.time;
+
+        allow delete: if isSignedIn()
+          && request.auth.uid == userId
+          && parentReportIsActive();
+
+        allow update: if false;
+      }
+    }
+
+  // ------------------------------------
+  // Notifications
+  // ------------------------------------
+
+  match /notifications/{notificationId} {
+
+    // Users can only read their own notifications.
+    allow read: if isSignedIn()
+      && resource.data.userId == request.auth.uid;
+
+    // Notification creation is reserved for trusted backend operations.
+    allow create: if false;
+
+    // Users may only mark their own notifications as read.
+    allow update: if isSignedIn()
+      && resource.data.userId == request.auth.uid
+
+      // Only these two fields may change.
+      && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly(['read', 'updatedAt'])
+
+      // Notification must currently be unread.
+      && resource.data.read == false
+
+      // The new read status must be true.
+      && request.resource.data.read == true
+
+      // Timestamp must reflect the server request time.
+      && request.resource.data.updatedAt == request.time;
+
+    // Users cannot delete notifications.
+    allow delete: if false;
+  }
+
+    // ------------------------------------
+    // Default deny
+    // ------------------------------------
+
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }

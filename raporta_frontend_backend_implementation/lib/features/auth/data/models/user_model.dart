@@ -35,6 +35,7 @@ class AppUserModel extends AppUser {
 
   Map<String, dynamic> toFirestore() {
     return {
+      'userId': userId,
       'name': name,
       'email': email,
       'role': role.name,

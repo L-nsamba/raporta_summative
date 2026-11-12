@@ -7,17 +7,13 @@ class ReportCard extends StatelessWidget {
   final Report report;
   final VoidCallback? onTap;
 
-  const ReportCard({
-    super.key,
-    required this.report,
-    this.onTap,
-  });
+  const ReportCard({super.key, required this.report, this.onTap});
 
   String _formatDate(DateTime date) {
     final day = date.day.toString().padLeft(2, '0');
     final month = date.month.toString().padLeft(2, '0');
 
-    return 'day/month/${date.year}';
+    return '$day/$month/${date.year}';
   }
 
   @override
@@ -77,8 +73,7 @@ class ReportCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (report.photoUrl != null &&
-                  report.photoUrl!.isNotEmpty) ...[
+              if (report.photoUrl != null && report.photoUrl!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
@@ -100,4 +95,3 @@ class ReportCard extends StatelessWidget {
     );
   }
 }
-
