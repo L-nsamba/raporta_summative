@@ -23,6 +23,9 @@ import 'package:raporta_frontend_backend_implementation/features/auth/domain/use
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/update_profile.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/watch_auth_state.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/dashboard/domain/usecases/get_citizen_dashboard.dart';
+import 'package:raporta_frontend_backend_implementation/features/dashboard/domain/usecases/get_official_dashboard.dart';
+import 'package:raporta_frontend_backend_implementation/features/dashboard/presentation/bloc/dashboard_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/data/datasources/agencies_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/data/datasources/agencies_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/domain/repositories/agencies_repository.dart';
@@ -78,6 +81,8 @@ Future<void> initializeDependencies() async {
 
   await googleSignIn.initialize();
 
+  // register Factory => UI state, Bloc, Cubit, form controllers
+  // register LazySingleton => Heavy services, databases and API clients intended to be delayed
   sl.registerLazySingleton<GoogleSignIn>(() => googleSignIn);
 
   // Tells the GetIt how to construct the remote data source whenever something requests AuthRemoteDatasource
@@ -253,4 +258,20 @@ Future<void> initializeDependencies() async {
   );
 
   sl.registerLazySingleton(() => UpdateProfile(repository: sl()));
+
+  // DASHBOARD
+  sl.registerLazySingleton<GetCitizenDashboard>(
+    () => GetCitizenDashboard(sl<ReportsRepository>()),
+  );
+
+  sl.registerLazySingleton<GetOfficialDashboard>(
+    () => GetOfficialDashboard(sl<ReportsRepository>()),
+  );
+
+  sl.registerFactory<DashboardCubit>(
+    () => DashboardCubit(
+      getCitizenDashboard: sl<GetCitizenDashboard>(),
+      getOfficialDashboard: sl<GetOfficialDashboard>(),
+    ),
+  );
 }
