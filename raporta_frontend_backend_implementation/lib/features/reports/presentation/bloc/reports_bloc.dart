@@ -15,6 +15,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
   final GetReports getReports;
   final GetPublicReports getPublicReports;
   final ReportsScope scope;
+  int _requestId = 0;
 
   ReportsBloc({
     required this.getReports,
@@ -75,14 +76,22 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
   // FETCH REPORTS FROM REPOSITORY
 
   Future<void> _fetchReports(Emitter<ReportsState> emit) async {
+    final requestId = ++_requestId;
+
     try {
       final reports = await _getScopedReports();
+
+      // Ignore outdated requests or cancelled handlers.
+      if (requestId != _requestId || emit.isDone || isClosed) {
+        return;
+      }
 
       final filteredReports = _applyFilters(
         reports,
         searchQuery: state.searchQuery,
         category: state.selectedCategory,
         status: state.selectedStatus,
+        areaId: state.selectedAreaId,
       );
 
       emit(
@@ -94,6 +103,11 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
         ),
       );
     } catch (e) {
+      // An older failed request must not overwrite newer data.
+      if (requestId != _requestId || emit.isDone || isClosed) {
+        return;
+      }
+
       emit(
         state.copyWith(
           status: ReportsStatus.failure,
@@ -111,6 +125,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
       searchQuery: event.query,
       category: state.selectedCategory,
       status: state.selectedStatus,
+      areaId: state.selectedAreaId,
     );
 
     emit(
@@ -130,6 +145,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
       searchQuery: state.searchQuery,
       category: event.category,
       status: event.status,
+      areaId: event.areaId,
     );
 
     emit(
@@ -137,8 +153,10 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
         reports: filteredReports,
         selectedCategory: event.category,
         selectedStatus: event.status,
+        selectedAreaId: event.areaId,
         clearCategory: event.category == null,
         clearStatus: event.status == null,
+        clearArea: event.areaId == null,
         clearError: true,
       ),
     );
@@ -155,6 +173,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
       searchQuery: '',
       category: null,
       status: null,
+      areaId: null,
     );
 
     emit(
@@ -163,6 +182,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
         searchQuery: '',
         clearCategory: true,
         clearStatus: true,
+        clearArea: true,
         clearError: true,
       ),
     );
@@ -175,6 +195,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
     required String searchQuery,
     ReportCategory? category,
     ReportStatus? status,
+    String? areaId,
   }) {
     final query = searchQuery.trim().toLowerCase();
 
@@ -188,7 +209,9 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
 
       final matchesStatus = status == null || report.status == status;
 
-      return matchesSearch && matchesCategory && matchesStatus;
+      final matchesArea = areaId == null || report.areaId == areaId;
+
+      return matchesSearch && matchesCategory && matchesStatus && matchesArea;
     }).toList();
   }
 }

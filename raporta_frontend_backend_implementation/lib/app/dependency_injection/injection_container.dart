@@ -53,12 +53,14 @@ import 'package:raporta_frontend_backend_implementation/features/reports/domain/
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/delete_report.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/forward_report.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_my_reports.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_public_reports.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_report_by_id.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_reports.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_upvote.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/toggle_upvote.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/update_report_status.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/bloc/reports_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/bloc/reports_scope.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/my_reports_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_details_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_form_cubit.dart';
@@ -162,6 +164,10 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton(() => GetReports(repository: sl()));
 
+  sl.registerLazySingleton(
+    () => GetPublicReports(repository: sl<ReportsRepository>()),
+  );
+
   sl.registerLazySingleton(() => GetReportById(repository: sl()));
 
   sl.registerLazySingleton(() => GetMyReports(repository: sl()));
@@ -180,7 +186,13 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory(() => ReportFormCubit(createReport: sl()));
 
-  sl.registerFactory(() => ReportsBloc(getReports: sl()));
+  sl.registerFactoryParam<ReportsBloc, ReportsScope, void>(
+    (scope, _) => ReportsBloc(
+      getReports: sl<GetReports>(),
+      getPublicReports: sl<GetPublicReports>(),
+      scope: scope,
+    ),
+  );
 
   sl.registerFactory(() => MyReportsCubit(getMyReports: sl()));
 

@@ -4,13 +4,7 @@ import '../../domain/entities/report.dart';
 import '../../../../core/enums/report_category.dart';
 import '../../../../core/enums/report_status.dart';
 
-enum ReportsStatus {
-  initial,
-  loading,
-  loaded,
-  empty,
-  failure,
-}
+enum ReportsStatus { initial, loading, loaded, empty, failure }
 
 class ReportsState extends Equatable {
   final ReportsStatus status;
@@ -21,6 +15,7 @@ class ReportsState extends Equatable {
   final String searchQuery;
   final ReportCategory? selectedCategory;
   final ReportStatus? selectedStatus;
+  final String? selectedAreaId;
 
   final String? errorMessage;
 
@@ -31,6 +26,7 @@ class ReportsState extends Equatable {
     this.searchQuery = '',
     this.selectedCategory,
     this.selectedStatus,
+    this.selectedAreaId,
     this.errorMessage,
   });
 
@@ -41,9 +37,11 @@ class ReportsState extends Equatable {
     String? searchQuery,
     ReportCategory? selectedCategory,
     ReportStatus? selectedStatus,
+    String? selectedAreaId,
     String? errorMessage,
     bool clearCategory = false,
     bool clearStatus = false,
+    bool clearArea = false,
     bool clearError = false,
   }) {
     return ReportsState(
@@ -51,23 +49,30 @@ class ReportsState extends Equatable {
       allReports: allReports ?? this.allReports,
       reports: reports ?? this.reports,
       searchQuery: searchQuery ?? this.searchQuery,
-      selectedCategory:
-          clearCategory ? null : selectedCategory ?? this.selectedCategory,
-      selectedStatus:
-          clearStatus ? null : selectedStatus ?? this.selectedStatus,
+
+      selectedCategory: clearCategory
+          ? null
+          : selectedCategory ?? this.selectedCategory,
+
+      selectedStatus: clearStatus
+          ? null
+          : selectedStatus ?? this.selectedStatus,
+
+      selectedAreaId: clearArea ? null : selectedAreaId ?? this.selectedAreaId,
+
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
-        status,
-        allReports,
-        reports,
-        searchQuery,
-        selectedCategory,
-        selectedStatus,
-        errorMessage,
-      ];
+    status,
+    allReports,
+    reports,
+    searchQuery,
+    selectedCategory,
+    selectedStatus,
+    selectedAreaId,
+    errorMessage,
+  ];
 }
-
