@@ -30,14 +30,14 @@ class SearchReports extends ReportsEvent {
 class FilterReports extends ReportsEvent {
   final ReportCategory? category;
   final ReportStatus? status;
+  final String? areaId;
 
-  const FilterReports({this.category, this.status});
+  const FilterReports({this.category, this.status, this.areaId});
 
   @override
-  List<Object?> get props => [category, status];
+  List<Object?> get props => [category, status, areaId];
 }
 
 class ClearReportFilters extends ReportsEvent {
   const ClearReportFilters();
 }
-

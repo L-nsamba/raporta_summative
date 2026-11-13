@@ -6,6 +6,13 @@ enum ReportStatus {
   resolved,
   declined;
 
+  bool get isPublic {
+    return this == ReportStatus.underReview ||
+        this == ReportStatus.forwarded ||
+        this == ReportStatus.inProgress ||
+        this == ReportStatus.resolved;
+  }
+
   String toFirestore() {
     switch (this) {
       case ReportStatus.pending:

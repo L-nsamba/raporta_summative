@@ -44,6 +44,11 @@ class ReportsRepositoryImpl implements ReportsRepository {
   }
 
   @override
+  Future<List<Report>> getPublicReports() async {
+    return await remoteDataSource.getPublicReports();
+  }
+
+  @override
   Future<Report?> getReportById(String reportId) async {
     return remoteDataSource.getReportById(reportId);
   }

@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_public_reports.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/bloc/reports_scope.dart';
 
 import '../../domain/entities/report.dart';
 import '../../domain/usecases/get_reports.dart';
@@ -11,8 +13,15 @@ import 'reports_state.dart';
 
 class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
   final GetReports getReports;
+  final GetPublicReports getPublicReports;
+  final ReportsScope scope;
+  int _requestId = 0;
 
-  ReportsBloc({required this.getReports}) : super(const ReportsState()) {
+  ReportsBloc({
+    required this.getReports,
+    required this.getPublicReports,
+    required this.scope,
+  }) : super(const ReportsState()) {
     on<LoadReports>(_onLoadReports);
     on<RefreshReports>(_onRefreshReports);
     on<SearchReports>(_onSearchReports);
@@ -40,17 +49,49 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
     await _fetchReports(emit);
   }
 
+  // RETRIEVE REPORTS BASED ON SCREEN SCOPE
+
+  Future<List<Report>> _getScopedReports() async {
+    switch (scope) {
+      case ReportsScope.public:
+        return getPublicReports();
+
+      case ReportsScope.all:
+        return getReports();
+
+      case ReportsScope.pending:
+        final reports = await getReports();
+
+        return reports
+            .where((report) => report.status == ReportStatus.pending)
+            .toList();
+
+      case ReportsScope.approved:
+        final reports = await getReports();
+
+        return reports.where((report) => report.status.isPublic).toList();
+    }
+  }
+
   // FETCH REPORTS FROM REPOSITORY
 
   Future<void> _fetchReports(Emitter<ReportsState> emit) async {
+    final requestId = ++_requestId;
+
     try {
-      final reports = await getReports();
+      final reports = await _getScopedReports();
+
+      // Ignore outdated requests or cancelled handlers.
+      if (requestId != _requestId || emit.isDone || isClosed) {
+        return;
+      }
 
       final filteredReports = _applyFilters(
         reports,
         searchQuery: state.searchQuery,
         category: state.selectedCategory,
         status: state.selectedStatus,
+        areaId: state.selectedAreaId,
       );
 
       emit(
@@ -62,6 +103,11 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
         ),
       );
     } catch (e) {
+      // An older failed request must not overwrite newer data.
+      if (requestId != _requestId || emit.isDone || isClosed) {
+        return;
+      }
+
       emit(
         state.copyWith(
           status: ReportsStatus.failure,
@@ -79,6 +125,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
       searchQuery: event.query,
       category: state.selectedCategory,
       status: state.selectedStatus,
+      areaId: state.selectedAreaId,
     );
 
     emit(
@@ -98,6 +145,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
       searchQuery: state.searchQuery,
       category: event.category,
       status: event.status,
+      areaId: event.areaId,
     );
 
     emit(
@@ -105,8 +153,10 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
         reports: filteredReports,
         selectedCategory: event.category,
         selectedStatus: event.status,
+        selectedAreaId: event.areaId,
         clearCategory: event.category == null,
         clearStatus: event.status == null,
+        clearArea: event.areaId == null,
         clearError: true,
       ),
     );
@@ -123,6 +173,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
       searchQuery: '',
       category: null,
       status: null,
+      areaId: null,
     );
 
     emit(
@@ -131,6 +182,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
         searchQuery: '',
         clearCategory: true,
         clearStatus: true,
+        clearArea: true,
         clearError: true,
       ),
     );
@@ -143,6 +195,7 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
     required String searchQuery,
     ReportCategory? category,
     ReportStatus? status,
+    String? areaId,
   }) {
     final query = searchQuery.trim().toLowerCase();
 
@@ -150,13 +203,15 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
       final matchesSearch =
           query.isEmpty ||
           report.description.toLowerCase().contains(query) ||
-          (report.locationDescription).toLowerCase().contains(query);
+          report.locationDescription.toLowerCase().contains(query);
+
       final matchesCategory = category == null || report.category == category;
 
       final matchesStatus = status == null || report.status == status;
 
-      return matchesSearch && matchesCategory && matchesStatus;
+      final matchesArea = areaId == null || report.areaId == areaId;
+
+      return matchesSearch && matchesCategory && matchesStatus && matchesArea;
     }).toList();
   }
 }
-

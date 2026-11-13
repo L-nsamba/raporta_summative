@@ -103,6 +103,84 @@ service cloud.firestore {
         );
     }
 
+    
+    function statusNotificationMessage(status) {
+      return status == 'under_review'
+        ? 'Your report has been approved and is now under review.'
+        : status == 'forwarded'
+        ? 'Your report has been forwarded to the relevant agency.'
+        : status == 'in_progress'
+        ? 'Work on your reported issue is now in progress.'
+        : status == 'resolved'
+        ? 'Your reported issue has been resolved.'
+        : status == 'declined'
+        ? 'Your report has been declined. View the report for more details.'
+        : '';
+    }
+
+    function hasValidNotificationData() {
+      let data = request.resource.data;
+
+      return data.keys().hasAll([
+          'userId',
+          'reportId',
+          'message',
+          'read',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'userId',
+          'reportId',
+          'message',
+          'read',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.userId is string
+        && data.reportId is string
+        && data.message is string
+        && data.read == false
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function isValidStatusNotification(notificationId) {
+      let data = request.resource.data;
+
+      let reportPath =
+        /databases/$(database)/documents/reports/$(data.reportId);
+
+      let before = get(reportPath).data;
+      let after = getAfter(reportPath).data;
+
+      return
+        // The report must exist and not be deleted.
+        before.deletedAt == null
+        && after.deletedAt == null
+
+        // A legitimate status transition must occur.
+        && isValidStatusTransition(
+          before.status,
+          after.status
+        )
+
+        // The notification must go to the report owner.
+        && data.userId == before.userId
+        && after.userId == before.userId
+
+        // The notification ID must match the status event.
+        && notificationId ==
+          data.reportId + '_status_' + after.status
+
+        // The message must match the new status.
+        && data.message ==
+          statusNotificationMessage(after.status)
+
+        // The report must be updated in this request.
+        && after.updatedAt == request.time;
+    }
+
     function hasValidAgencyAssignment() {
       return
         (
@@ -126,6 +204,65 @@ service cloud.firestore {
           )
         );
     }
+
+      function isPublicReport() {
+        return resource.data.status in [
+          'under_review',
+          'forwarded',
+          'in_progress',
+          'resolved'
+        ];
+      }
+
+      function isReportOwner() {
+        return isSignedIn()
+          && resource.data.userId == request.auth.uid;
+      }
+
+      function canReadReport() {
+        return isSignedIn()
+          && isActiveReport()
+          && (
+            isOfficial()
+            || isReportOwner()
+            || isPublicReport()
+          );
+      }
+
+
+    function hasRequiredStatusNotification(reportId) {
+      let newStatus = request.resource.data.status;
+
+      let notificationId =
+        reportId + '_status_' + newStatus;
+
+      let notificationPath =
+        /databases/$(database)/documents/notifications/$(notificationId);
+
+      let notification = getAfter(notificationPath).data;
+
+      return
+        // The notification must not already exist.
+        !exists(notificationPath)
+
+        // The notification must be created in this batch.
+        && existsAfter(notificationPath)
+
+        // Validate the associated report and recipient.
+        && notification.reportId == reportId
+        && notification.userId == resource.data.userId
+
+        // Validate the message and initial read status.
+        && notification.message ==
+          statusNotificationMessage(newStatus)
+        && notification.read == false
+
+        // Ensure it is created during this request.
+        && notification.createdAt == request.time
+        && notification.updatedAt == request.time;
+    }
+
+
 
     // ------------------------------------
     // Areas
@@ -203,9 +340,9 @@ service cloud.firestore {
 
     match /reports/{reportId} {
 
-      // Authenticated users can read active reports.
-      allow read: if isSignedIn()
-        && isActiveReport();
+      // Officials can read all non-deleted reports.
+      // Citizens can read their own reports and public reports.
+      allow read: if canReadReport();
 
       // Citizens can create their own reports.
       allow create: if isCitizen()
@@ -308,7 +445,6 @@ service cloud.firestore {
       // ------------------------------------
       // Report upvotes
       // ------------------------------------
-
       match /upvotes/{userId} {
 
         function parentReportIsActive() {
@@ -320,12 +456,24 @@ service cloud.firestore {
           ).data.deletedAt == null;
         }
 
+        function parentReportIsPublic() {
+          return parentReportIsActive()
+            && get(
+              /databases/$(database)/documents/reports/$(reportId)
+            ).data.status in [
+              'under_review',
+              'forwarded',
+              'in_progress',
+              'resolved'
+            ];
+        }
+
         allow read: if isSignedIn()
-          && parentReportIsActive();
+          && parentReportIsPublic();
 
         allow create: if isSignedIn()
           && request.auth.uid == userId
-          && parentReportIsActive()
+          && parentReportIsPublic()
           && request.resource.data.keys().hasOnly([
             'userId',
             'createdAt'
@@ -335,46 +483,50 @@ service cloud.firestore {
 
         allow delete: if isSignedIn()
           && request.auth.uid == userId
-          && parentReportIsActive();
+          && parentReportIsPublic();
 
         allow update: if false;
       }
+
     }
 
   // ------------------------------------
   // Notifications
   // ------------------------------------
 
-  match /notifications/{notificationId} {
+    match /notifications/{notificationId} {
 
-    // Users can only read their own notifications.
-    allow read: if isSignedIn()
-      && resource.data.userId == request.auth.uid;
+      // Users can only read their own notifications.
+      allow read: if isSignedIn()
+        && resource.data.userId == request.auth.uid;
 
-    // Notification creation is reserved for trusted backend operations.
-    allow create: if false;
+      // Officials can create valid report status notifications.
+      allow create: if isOfficial()
+        && hasValidNotificationData()
+        && isValidStatusNotification(notificationId);
 
-    // Users may only mark their own notifications as read.
-    allow update: if isSignedIn()
-      && resource.data.userId == request.auth.uid
+      // Users may only mark their own notifications as read.
+      allow update: if isSignedIn()
+        && resource.data.userId == request.auth.uid
 
-      // Only these two fields may change.
-      && request.resource.data.diff(resource.data)
-          .affectedKeys()
-          .hasOnly(['read', 'updatedAt'])
+        // Only these two fields may change.
+        && request.resource.data.diff(resource.data)
+            .affectedKeys()
+            .hasOnly(['read', 'updatedAt'])
 
-      // Notification must currently be unread.
-      && resource.data.read == false
+        // Notification must currently be unread.
+        && resource.data.read == false
 
-      // The new read status must be true.
-      && request.resource.data.read == true
+        // The new read status must be true.
+        && request.resource.data.read == true
 
-      // Timestamp must reflect the server request time.
-      && request.resource.data.updatedAt == request.time;
+        // Timestamp must reflect the server request time.
+        && request.resource.data.updatedAt == request.time;
 
-    // Users cannot delete notifications.
-    allow delete: if false;
-  }
+      // Users cannot delete notifications.
+      allow delete: if false;
+    }
+
 
     // ------------------------------------
     // Default deny
