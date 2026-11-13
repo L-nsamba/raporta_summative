@@ -10,6 +10,9 @@ abstract class ReportsRepository {
   // Retrieve all reports
   Future<List<Report>> getReports();
 
+  // Retrieve approved, publicly visible reports.
+  Future<List<Report>> getPublicReports();
+
   // Retrieve a specific report
   Future<Report?> getReportById(String reportId);
 

@@ -46,6 +46,28 @@ class ReportsRemoteDataSourceImpl implements ReportsRemoteDataSource {
   }
 
   @override
+  Future<List<ReportModel>> getPublicReports() async {
+    final snapshot = await _reportsCollection
+        .where('deletedAt', isNull: true)
+        .where(
+          'status',
+          whereIn: ReportStatus.values
+              .where((status) => status.isPublic)
+              .map((status) => status.toFirestore())
+              .toList(),
+        )
+        .get();
+
+    final reports = snapshot.docs
+        .map((document) => ReportModel.fromFirestore(document))
+        .toList();
+
+    reports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    return reports;
+  }
+
+  @override
   Future<ReportModel?> getReportById(String reportId) async {
     final document = await _reportsCollection.doc(reportId).get();
 

@@ -9,6 +9,8 @@ abstract class ReportsRemoteDataSource {
 
   Future<List<ReportModel>> getReports();
 
+  Future<List<ReportModel>> getPublicReports();
+
   Future<ReportModel?> getReportById(String reportId);
 
   Future<List<ReportModel>> getMyReports(String userId);
@@ -28,7 +30,7 @@ abstract class ReportsRemoteDataSource {
     required DeclineReason reason,
     String? feedback,
   });
-  
+
   Future<void> deleteReport(String reportId);
 
   Future<List<UpvoteModel>> getUpvotes(String reportId);

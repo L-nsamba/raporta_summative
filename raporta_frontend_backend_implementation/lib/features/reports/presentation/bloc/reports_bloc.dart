@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_public_reports.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/bloc/reports_scope.dart';
 
 import '../../domain/entities/report.dart';
 import '../../domain/usecases/get_reports.dart';
@@ -11,8 +13,14 @@ import 'reports_state.dart';
 
 class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
   final GetReports getReports;
+  final GetPublicReports getPublicReports;
+  final ReportsScope scope;
 
-  ReportsBloc({required this.getReports}) : super(const ReportsState()) {
+  ReportsBloc({
+    required this.getReports,
+    required this.getPublicReports,
+    required this.scope,
+  }) : super(const ReportsState()) {
     on<LoadReports>(_onLoadReports);
     on<RefreshReports>(_onRefreshReports);
     on<SearchReports>(_onSearchReports);
@@ -40,11 +48,35 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
     await _fetchReports(emit);
   }
 
+  // RETRIEVE REPORTS BASED ON SCREEN SCOPE
+
+  Future<List<Report>> _getScopedReports() async {
+    switch (scope) {
+      case ReportsScope.public:
+        return getPublicReports();
+
+      case ReportsScope.all:
+        return getReports();
+
+      case ReportsScope.pending:
+        final reports = await getReports();
+
+        return reports
+            .where((report) => report.status == ReportStatus.pending)
+            .toList();
+
+      case ReportsScope.approved:
+        final reports = await getReports();
+
+        return reports.where((report) => report.status.isPublic).toList();
+    }
+  }
+
   // FETCH REPORTS FROM REPOSITORY
 
   Future<void> _fetchReports(Emitter<ReportsState> emit) async {
     try {
-      final reports = await getReports();
+      final reports = await _getScopedReports();
 
       final filteredReports = _applyFilters(
         reports,
@@ -150,7 +182,8 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
       final matchesSearch =
           query.isEmpty ||
           report.description.toLowerCase().contains(query) ||
-          (report.locationDescription).toLowerCase().contains(query);
+          report.locationDescription.toLowerCase().contains(query);
+
       final matchesCategory = category == null || report.category == category;
 
       final matchesStatus = status == null || report.status == status;
@@ -159,4 +192,3 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
     }).toList();
   }
 }
-
