@@ -32,7 +32,7 @@ import 'package:raporta_frontend_backend_implementation/features/moderation/doma
 import 'package:raporta_frontend_backend_implementation/features/moderation/domain/usecases/get_agencies.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/cubit/agencies_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/notifications/data/datasources/notifications_remote_datasource.dart';
-import 'package:raporta_frontend_backend_implementation/features/notifications/data/datasources/notifications_repository_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/data/repositories/notifications_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/notifications/domain/repositories/notifications_repository.dart';
 import 'package:raporta_frontend_backend_implementation/features/notifications/domain/usecases/get_notifications.dart';
 import 'package:raporta_frontend_backend_implementation/features/notifications/domain/usecases/mark_notification_read.dart';
