@@ -184,8 +184,10 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton(() => ToggleUpvote(repository: sl()));
 
-  sl.registerFactory(() => ReportFormCubit(createReport: sl()));
-
+  sl.registerFactory(
+    () => ReportFormCubit(createReport: sl(), uploadReportPhoto: sl()),
+  );
+  
   sl.registerFactoryParam<ReportsBloc, ReportsScope, void>(
     (scope, _) => ReportsBloc(
       getReports: sl<GetReports>(),
