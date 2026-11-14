@@ -11,36 +11,37 @@ class GetCitizenDashboard {
     required String userId,
     required String areaId,
   }) async {
-    final reports = await repository.getReports();
+    // Only approved, publicly visible reports.
+    final reports = await repository.getPublicReports();
 
-    // Reports belonging to the citizen's registered area.
+    // Public reports belonging to the citizen's registered area.
     final areaReports = reports
         .where((report) => report.areaId == areaId)
         .toList();
 
-    // Total reports in the area.
+    // Total public reports in the area.
     final totalReportsInArea = areaReports.length;
 
-    // Resolved reports in the area.
+    // Resolved public reports in the area.
     final resolvedReportsInArea = areaReports
         .where((report) => report.status == ReportStatus.resolved)
         .length;
 
-    // Reports that are still being processed.
+    // Approved reports that are still being processed.
     final activeReportsInArea = areaReports
         .where(
           (report) =>
-              report.status == ReportStatus.pending ||
               report.status == ReportStatus.underReview ||
               report.status == ReportStatus.forwarded ||
               report.status == ReportStatus.inProgress,
         )
         .length;
 
-    // Reports submitted by the citizen, regardless of area.
+    // All reports submitted by the citizen, regardless of
+    // area or publication status.
     final myReports = await repository.getMyReports(userId);
 
-    // Five most recent reports in the citizen's area.
+    // Five most recent public reports in the citizen's area.
     areaReports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     return CitizenDashboardStats(
