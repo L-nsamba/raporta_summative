@@ -51,4 +51,24 @@ class ReportNotificationHelper {
       'updatedAt': FieldValue.serverTimestamp(),
     };
   }
+
+  // Predefined message for new report submissions.
+  static const String newReportMessage =
+      'A new report has been submitted for review.';
+
+  // Notification ID for a newly submitted report.
+  static String newReportNotificationId({required String reportId}) {
+    return '${reportId}_new_report';
+  }
+
+  // Message for report upvote notifications.
+  static const String upvoteMessage = 'Someone has upvoted your report.';
+
+  // Unique notification ID for each report and voter.
+  static String upvoteNotificationId({
+    required String reportId,
+    required String voterId,
+  }) {
+    return '${reportId}_upvote_$voterId';
+  }
 }

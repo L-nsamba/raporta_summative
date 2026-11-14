@@ -7,8 +7,11 @@ class FirestoreCollections {
   static const String agencies = 'agencies';
   static const String reports = 'reports';
   static const String notifications = 'notifications';
+  static const String appConfig = 'app_config';
 
   // Sub collections
   static const String upvotes = 'upvotes';
   static const String statusHistory = 'statusHistory';
+
+  static const String upvoteNotificationMarkers = 'upvote_notification_markers';
 }

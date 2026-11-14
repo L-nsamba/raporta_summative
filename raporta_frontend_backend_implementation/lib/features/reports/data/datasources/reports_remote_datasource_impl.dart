@@ -18,15 +18,53 @@ class ReportsRemoteDataSourceImpl implements ReportsRemoteDataSource {
 
   @override
   Future<String> createReport(ReportModel report) async {
+    // Generate the report ID before saving it.
     final document = _reportsCollection.doc();
 
-    await document.set({
+    // Retrieve the designated official.
+    final configSnapshot = await firestore
+        .collection(FirestoreCollections.appConfig)
+        .doc('moderation')
+        .get();
+
+    final officialId = configSnapshot.data()?['officialId'];
+
+    if (officialId is! String || officialId.trim().isEmpty) {
+      throw StateError('No moderation official has been configured.');
+    }
+
+    // Generate the new report notification ID.
+    final notificationId = ReportNotificationHelper.newReportNotificationId(
+      reportId: document.id,
+    );
+
+    final notificationRef = firestore
+        .collection(FirestoreCollections.notifications)
+        .doc(notificationId);
+
+    // Prepare the notification.
+    final notificationData = ReportNotificationHelper.buildNotification(
+      userId: officialId,
+      reportId: document.id,
+      message: ReportNotificationHelper.newReportMessage,
+    );
+
+    final batch = firestore.batch();
+
+    // Create the report.
+    batch.set(document, {
       ...report.toFirestore(),
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
       'status': 'pending',
       'deletedAt': null,
     });
+
+    // Create the official's notification.
+    batch.set(notificationRef, notificationData);
+
+    // Save both documents together.
+    await batch.commit();
 
     return document.id;
   }
@@ -126,22 +164,88 @@ class ReportsRemoteDataSourceImpl implements ReportsRemoteDataSource {
     required String reportId,
     required String userId,
   }) async {
-    final upvoteReference = _reportsCollection
-        .doc(reportId)
-        .collection('upvotes')
+    final reportRef = _reportsCollection.doc(reportId);
+
+    final upvoteRef = reportRef
+        .collection(FirestoreCollections.upvotes)
+        .doc(userId);
+
+    final markerRef = reportRef
+        .collection(FirestoreCollections.upvoteNotificationMarkers)
         .doc(userId);
 
     await firestore.runTransaction((transaction) async {
-      final snapshot = await transaction.get(upvoteReference);
+      // Check whether the user has already upvoted.
+      final upvoteSnapshot = await transaction.get(upvoteRef);
 
-      if (snapshot.exists) {
-        transaction.delete(upvoteReference);
-      } else {
-        transaction.set(upvoteReference, {
+      // If the upvote exists, remove it.
+      if (upvoteSnapshot.exists) {
+        transaction.delete(upvoteRef);
+        return;
+      }
+
+      // Retrieve the report to identify its owner.
+      final reportSnapshot = await transaction.get(reportRef);
+
+      final reportData = reportSnapshot.data();
+
+      if (!reportSnapshot.exists || reportData == null) {
+        throw StateError('Report $reportId does not exist.');
+      }
+
+      final ownerId = reportData['userId'] as String;
+
+      // Users can upvote their own reports without
+      // generating a notification.
+      if (ownerId == userId) {
+        transaction.set(upvoteRef, {
           'userId': userId,
           'createdAt': FieldValue.serverTimestamp(),
         });
+
+        return;
       }
+
+      // Check whether this user has previously generated
+      // an upvote notification for this report.
+      final markerSnapshot = await transaction.get(markerRef);
+
+      // Create the upvote.
+      transaction.set(upvoteRef, {
+        'userId': userId,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // If already notified, no additional notification
+      // or marker is needed.
+      if (markerSnapshot.exists) {
+        return;
+      }
+
+      // Generate the notification ID.
+      final notificationId = ReportNotificationHelper.upvoteNotificationId(
+        reportId: reportId,
+        voterId: userId,
+      );
+
+      final notificationRef = firestore
+          .collection(FirestoreCollections.notifications)
+          .doc(notificationId);
+
+      final notificationData = ReportNotificationHelper.buildNotification(
+        userId: ownerId,
+        reportId: reportId,
+        message: ReportNotificationHelper.upvoteMessage,
+      );
+
+      // Record that this voter has notified the owner.
+      transaction.set(markerRef, {
+        'userId': userId,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Create the report owner's notification.
+      transaction.set(notificationRef, notificationData);
     });
   }
 
