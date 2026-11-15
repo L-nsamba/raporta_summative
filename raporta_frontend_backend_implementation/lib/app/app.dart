@@ -19,20 +19,44 @@ class RaportaApp extends StatelessWidget {
         BlocProvider<AuthBloc>(
           create: (_) => sl<AuthBloc>()..add(AuthCheckRequested()),
         ),
+
         BlocProvider<PreferencesCubit>(
           create: (_) => sl<PreferencesCubit>()..loadPreferences(),
         ),
       ],
-      child: BlocListener<AuthBloc, AuthState>(
-        listenWhen: (previous, current) {
-          return previous.user?.userId != current.user?.userId;
-        },
-        listener: (context, state) {
-          context.read<PreferencesCubit>().loadPreferences();
-        },
+
+      child: MultiBlocListener(
+        listeners: [
+          // Reload account-specific preferences when
+          // the authenticated user changes.
+          BlocListener<AuthBloc, AuthState>(
+            listenWhen: (previous, current) {
+              return previous.user?.userId != current.user?.userId;
+            },
+            listener: (context, state) {
+              context.read<PreferencesCubit>().loadPreferences();
+            },
+          ),
+
+          // Reevaluate navigation when authentication
+          // or verification status changes.
+          BlocListener<AuthBloc, AuthState>(
+            listenWhen: (previous, current) {
+              return previous.status != current.status ||
+                  previous.user?.userId != current.user?.userId ||
+                  previous.isEmailVerified != current.isEmailVerified ||
+                  previous.user?.role != current.user?.role;
+            },
+            listener: (context, state) {
+              AppRouter.router.refresh();
+            },
+          ),
+        ],
+
         child: BlocBuilder<PreferencesCubit, PreferencesState>(
           buildWhen: (previous, current) =>
               previous.preferences.isDarkMode != current.preferences.isDarkMode,
+
           builder: (context, state) {
             return MaterialApp.router(
               title: 'Raporta',

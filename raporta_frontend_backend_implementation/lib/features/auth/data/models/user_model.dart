@@ -11,11 +11,13 @@ class AppUserModel extends AppUser {
     required super.areaId,
     required super.createdAt,
     required super.updatedAt,
+    super.emailVerified,
   });
 
   factory AppUserModel.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> document,
-  ) {
+    DocumentSnapshot<Map<String, dynamic>> document, {
+    bool emailVerified = false,
+  }) {
     final data = document.data();
 
     if (data == null) {
@@ -23,6 +25,7 @@ class AppUserModel extends AppUser {
     }
 
     return AppUserModel(
+      emailVerified: emailVerified,
       userId: document.id,
       name: data['name'] as String,
       email: data['email'] as String,

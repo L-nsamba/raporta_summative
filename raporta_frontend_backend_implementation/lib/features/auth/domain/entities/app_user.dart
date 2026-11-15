@@ -9,6 +9,9 @@ class AppUser {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  // Provided by Firebase Authentication, not Firestore.
+  final bool emailVerified;
+
   const AppUser({
     required this.userId,
     required this.name,
@@ -17,5 +20,6 @@ class AppUser {
     required this.areaId,
     required this.createdAt,
     required this.updatedAt,
+    this.emailVerified = false,
   });
 }

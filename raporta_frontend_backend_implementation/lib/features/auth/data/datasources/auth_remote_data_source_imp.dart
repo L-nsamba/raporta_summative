@@ -34,7 +34,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return null;
       }
 
-      return AppUserModel.fromFirestore(userDocument);
+      return AppUserModel.fromFirestore(
+        userDocument,
+        emailVerified: firebaseUser.emailVerified,
+      );
     });
   }
 
@@ -61,6 +64,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final now = DateTime.now();
 
     // Creation of the user profile model
+
     final user = AppUserModel(
       userId: firebaseUser.uid,
       name: name,
@@ -69,6 +73,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       areaId: areaId,
       createdAt: now,
       updatedAt: now,
+      emailVerified: firebaseUser.emailVerified,
     );
 
     // Saving of the profile in Firestore
@@ -111,7 +116,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
 
     // Converting Firestore document into AppUserModel
-    return AppUserModel.fromFirestore(userDocument);
+    return AppUserModel.fromFirestore(
+      userDocument,
+      emailVerified: firebaseUser.emailVerified,
+    );
   }
 
   @override
@@ -148,7 +156,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     if (userDocument.exists) {
       // Returning user: retrieve existing profile
-      return AppUserModel.fromFirestore(userDocument);
+      return AppUserModel.fromFirestore(
+        userDocument,
+        emailVerified: firebaseUser.emailVerified,
+      );
     }
 
     // First time user: create their profile
@@ -162,6 +173,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       areaId: areaId,
       createdAt: now,
       updatedAt: now,
+      emailVerified: firebaseUser.emailVerified,
     );
 
     await firestore.collection('users').doc(firebaseUser.uid).set({
@@ -193,27 +205,40 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<AppUserModel?> getCurrentUser() async {
-    // Getting the currently authenticated Firebase user
-    final firebaseUser = firebaseAuth.currentUser;
+    final currentUser = firebaseAuth.currentUser;
 
-    // Return null if nobody is signed in
-    if (firebaseUser == null) {
+    if (currentUser == null) {
       return null;
     }
 
-    // Retrieving their Firebase profile
+    // Retrieve the latest user information from Firebase.
+    await currentUser.reload();
+
+    // Read the refreshed Firebase user.
+    final firebaseUser = firebaseAuth.currentUser;
+
+    if (firebaseUser == null || firebaseUser.uid != currentUser.uid) {
+      return null;
+    }
+
+    // Refresh the ID token to include updated verification claims.
+    if (firebaseUser.emailVerified) {
+      await firebaseUser.getIdToken(true);
+    }
+
     final userDocument = await firestore
         .collection('users')
         .doc(firebaseUser.uid)
         .get();
 
-    // Returning null if the profile does not exist
     if (!userDocument.exists) {
       return null;
     }
 
-    // Converting and returning the profile
-    return AppUserModel.fromFirestore(userDocument);
+    return AppUserModel.fromFirestore(
+      userDocument,
+      emailVerified: firebaseUser.emailVerified,
+    );
   }
 
   @override
@@ -248,6 +273,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final updatedDocument = await userReference.get();
 
     // Convert and return the updated user
-    return AppUserModel.fromFirestore(updatedDocument);
+    return AppUserModel.fromFirestore(
+      updatedDocument,
+      emailVerified: firebaseUser.emailVerified,
+    );
   }
 }
