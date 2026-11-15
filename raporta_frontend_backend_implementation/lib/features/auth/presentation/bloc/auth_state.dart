@@ -11,6 +11,9 @@ class AuthState extends Equatable {
   final AppUser? user;
   final String? errorMessage;
   final String? successMessage;
+  bool get isEmailVerified => user?.emailVerified ?? false;
+  bool get canAccessApp =>
+      status == AuthStatus.authenticated && user != null && isEmailVerified;
 
   const AuthState({
     this.status = AuthStatus.unknown,

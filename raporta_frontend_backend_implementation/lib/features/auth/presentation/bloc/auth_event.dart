@@ -77,6 +77,11 @@ class AuthPasswordResetRequested extends AuthEvent {
 // email verification
 class AuthEmailVerificationRequested extends AuthEvent {}
 
+// Check whether the user has verified their email.
+class AuthEmailVerificationCheckRequested extends AuthEvent {
+  const AuthEmailVerificationCheckRequested();
+}
+
 // Update the authenticated user's profile
 class AuthProfileUpdateRequested extends AuthEvent {
   final String name;
