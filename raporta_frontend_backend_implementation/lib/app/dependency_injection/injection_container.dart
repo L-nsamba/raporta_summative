@@ -28,7 +28,7 @@ import 'package:raporta_frontend_backend_implementation/features/dashboard/domai
 import 'package:raporta_frontend_backend_implementation/features/dashboard/domain/usecases/get_official_dashboard.dart';
 import 'package:raporta_frontend_backend_implementation/features/dashboard/presentation/bloc/dashboard_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/data/datasources/agencies_remote_datasource.dart';
-import 'package:raporta_frontend_backend_implementation/features/moderation/data/repositories/agencies_repository_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/data/datasources/agencies_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/domain/repositories/agencies_repository.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/domain/usecases/get_agencies.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/cubit/agencies_cubit.dart';
