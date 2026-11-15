@@ -9,6 +9,7 @@ import 'package:raporta_frontend_backend_implementation/features/areas/data/repo
 import 'package:raporta_frontend_backend_implementation/features/areas/domain/repositories/areas_repository.dart';
 import 'package:raporta_frontend_backend_implementation/features/areas/domain/usecases/get_area_by_id.dart';
 import 'package:raporta_frontend_backend_implementation/features/areas/domain/usecases/get_areas.dart';
+import 'package:raporta_frontend_backend_implementation/features/areas/presentation/bloc/areas_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/datasources/auth_remote_data_source_imp.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/data/repositories/auth_repository_impl.dart';
@@ -27,10 +28,11 @@ import 'package:raporta_frontend_backend_implementation/features/dashboard/domai
 import 'package:raporta_frontend_backend_implementation/features/dashboard/domain/usecases/get_official_dashboard.dart';
 import 'package:raporta_frontend_backend_implementation/features/dashboard/presentation/bloc/dashboard_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/data/datasources/agencies_remote_datasource.dart';
-import 'package:raporta_frontend_backend_implementation/features/moderation/data/datasources/agencies_repository_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/data/repositories/agencies_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/domain/repositories/agencies_repository.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/domain/usecases/get_agencies.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/cubit/agencies_cubit.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/cubit/moderation_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/notifications/data/datasources/notifications_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/notifications/data/repositories/notifications_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/notifications/domain/repositories/notifications_repository.dart';
@@ -187,7 +189,15 @@ Future<void> initializeDependencies() async {
   sl.registerFactory(
     () => ReportFormCubit(createReport: sl(), uploadReportPhoto: sl()),
   );
-  
+
+  sl.registerFactory(
+    () => ModerationCubit(
+      updateReportStatus: sl(),
+      forwardReport: sl(),
+      declineReport: sl(),
+    ),
+  );
+
   sl.registerFactoryParam<ReportsBloc, ReportsScope, void>(
     (scope, _) => ReportsBloc(
       getReports: sl<GetReports>(),
@@ -221,6 +231,8 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => GetAgencies(repository: sl()));
 
   sl.registerFactory(() => AgenciesCubit(getAgencies: sl()));
+
+  sl.registerFactory(() => AreasCubit(getAreas: sl(), getAreaById: sl()));
 
   // NOTIFICATIONS
   // Remote data source
