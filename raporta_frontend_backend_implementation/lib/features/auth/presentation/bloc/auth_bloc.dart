@@ -1,8 +1,5 @@
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:raporta_frontend_backend_implementation/features/auth/domain/usecases/update_profile.dart';
-
 import '../../domain/entities/app_user.dart';
 import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/register_with_email.dart';
@@ -11,6 +8,7 @@ import '../../domain/usecases/send_password_reset.dart';
 import '../../domain/usecases/sign_in_with_email.dart';
 import '../../domain/usecases/sign_in_with_google.dart';
 import '../../domain/usecases/sign_out.dart';
+import '../../domain/usecases/update_profile.dart';
 import '../../domain/usecases/watch_auth_state.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -25,7 +23,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final WatchAuthState watchAuthState;
   final SignOut signOut;
   final UpdateProfile updateProfile;
-
   StreamSubscription<AppUser?>? _authSubscription;
 
   AuthBloc({
@@ -44,12 +41,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthStreamFailed>(_onAuthStreamFailed);
     on<AuthRegisterRequested>(_onRegisterRequested);
     on<AuthLoginRequested>(_onLoginRequested);
-    on<AuthEmailVerificationCheckRequested>(_onEmailVerificationCheckRequested);
     on<AuthGoogleSignInRequested>(_onGoogleSignInRequested);
     on<AuthPasswordResetRequested>(_onPasswordResetRequested);
     on<AuthEmailVerificationRequested>(_onEmailVerificationRequested);
-    on<AuthProfileUpdateRequested>(_onProfileUpdateRequested);
     on<AuthLogoutRequested>(_onLogoutRequested);
+    on<AuthProfileUpdateRequested>(_onProfileUpdateRequested);
   }
 
   Future<void> _onAuthCheckRequested(
@@ -93,17 +89,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthRegisterRequested event,
     Emitter<AuthState> emit,
   ) async {
-    if (state.operationStatus == AuthOperationStatus.loading) {
-      return;
-    }
-
     emit(
       state.copyWith(
         operationStatus: AuthOperationStatus.loading,
         clearMessages: true,
       ),
     );
-
     try {
       final user = await registerWithEmail(
         name: event.name,
@@ -111,41 +102,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password,
         areaId: event.areaId,
       );
-
-      String? verificationError;
-
-      // The account exists at this point.
-      // Sending an email is a separate operation.
-      if (!user.emailVerified) {
-        try {
-          await sendEmailVerification();
-        } catch (e) {
-          verificationError =
-              'Account created, but we could not send '
-              'the verification email. Please resend it.';
-        }
-      }
-
       emit(
         state.copyWith(
           status: AuthStatus.authenticated,
           operationStatus: AuthOperationStatus.success,
           user: user,
-          clearMessages: true,
-          successMessage: user.emailVerified
-              ? 'Registration successful.'
-              : verificationError == null
-              ? 'Registration successful. Check your inbox '
-                    'to verify your email.'
-              : 'Registration successful.',
-          errorMessage: verificationError,
+          successMessage: 'Registration successful.',
         ),
       );
     } catch (e) {
       emit(
         state.copyWith(
           operationStatus: AuthOperationStatus.failure,
-          clearMessages: true,
           errorMessage: 'Registration failed. Please try again.',
         ),
       );
@@ -180,91 +148,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         state.copyWith(
           operationStatus: AuthOperationStatus.failure,
           errorMessage: 'Login failed. Please check your credentials.',
-        ),
-      );
-    }
-  }
-
-  Future<void> _onEmailVerificationCheckRequested(
-    AuthEmailVerificationCheckRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    if (state.operationStatus == AuthOperationStatus.loading) {
-      return;
-    }
-
-    if (state.operationStatus == AuthOperationStatus.loading) {
-      return;
-    }
-
-    if (state.user == null || state.isEmailVerified) {
-      return;
-    }
-
-    final userId = state.user?.userId;
-
-    if (userId == null) {
-      return;
-    }
-
-    emit(
-      state.copyWith(
-        operationStatus: AuthOperationStatus.loading,
-        clearMessages: true,
-      ),
-    );
-
-    try {
-      // Reload the Firebase user and retrieve the updated profile.
-      final user = await getCurrentUser();
-
-      // Ignore the result if the account changed during the request.
-      if (state.user?.userId != userId) return;
-
-      if (user == null || user.userId != userId) {
-        emit(
-          state.copyWith(
-            status: AuthStatus.unauthenticated,
-            operationStatus: AuthOperationStatus.failure,
-            clearUser: true,
-            clearMessages: true,
-            errorMessage: 'Please sign in again.',
-          ),
-        );
-        return;
-      }
-
-      if (!user.emailVerified) {
-        emit(
-          state.copyWith(
-            user: user,
-            operationStatus: AuthOperationStatus.failure,
-            clearMessages: true,
-            errorMessage:
-                'Your email has not been verified yet. '
-                'Please check your inbox.',
-          ),
-        );
-        return;
-      }
-
-      emit(
-        state.copyWith(
-          status: AuthStatus.authenticated,
-          operationStatus: AuthOperationStatus.success,
-          user: user,
-          clearMessages: true,
-          successMessage: 'Email verified successfully.',
-        ),
-      );
-    } catch (e) {
-      if (state.user?.userId != userId) return;
-
-      emit(
-        state.copyWith(
-          operationStatus: AuthOperationStatus.failure,
-          clearMessages: true,
-          errorMessage: 'Unable to check email verification. Please try again.',
         ),
       );
     }
@@ -332,26 +215,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthEmailVerificationRequested event,
     Emitter<AuthState> emit,
   ) async {
-    // Prevent duplicate requests while an operation is running.
-    if (state.operationStatus == AuthOperationStatus.loading) {
-      return;
-    }
-
-    // Only unverified, authenticated users need verification emails.
-    if (state.user == null || state.isEmailVerified) {
-      return;
-    }
-
     emit(
       state.copyWith(
         operationStatus: AuthOperationStatus.loading,
         clearMessages: true,
       ),
     );
-
     try {
       await sendEmailVerification();
-
       emit(
         state.copyWith(
           operationStatus: AuthOperationStatus.success,
@@ -402,18 +273,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthProfileUpdateRequested event,
     Emitter<AuthState> emit,
   ) async {
-    if (state.status != AuthStatus.authenticated || state.user == null) {
+    final currentUser = state.user;
+    if (state.status != AuthStatus.authenticated || currentUser == null) {
       emit(
         state.copyWith(
           operationStatus: AuthOperationStatus.failure,
-          clearMessages: true,
           errorMessage: 'You must be signed in to update your profile.',
         ),
       );
-      return;
-    }
-
-    if (state.operationStatus == AuthOperationStatus.loading) {
       return;
     }
 
@@ -430,18 +297,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         areaId: event.areaId,
       );
 
-      // Ensure the account has not changed while the request was running.
-      if (state.user?.userId != updatedUser.userId ||
-          state.status != AuthStatus.authenticated) {
-        return;
-      }
+      // discard a stale result if auth state changed while awaiting.
+      if (state.user?.userId != currentUser.userId) return;
 
       emit(
         state.copyWith(
-          status: AuthStatus.authenticated,
           operationStatus: AuthOperationStatus.success,
           user: updatedUser,
-          clearMessages: true,
           successMessage: 'Profile updated successfully.',
         ),
       );
@@ -449,7 +311,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(
         state.copyWith(
           operationStatus: AuthOperationStatus.failure,
-          clearMessages: true,
           errorMessage: 'Unable to update your profile. Please try again.',
         ),
       );
