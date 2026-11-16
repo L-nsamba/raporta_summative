@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/entities/upvotes.dart';
 
 import '../../domain/usecases/get_report_by_id.dart';
 import '../../domain/usecases/get_upvote.dart';
@@ -18,73 +19,70 @@ class ReportDetailsCubit extends Cubit<ReportDetailsState> {
   }) : super(const ReportDetailsState());
 
   // LOAD REPORT DETAILS
-
   Future<void> loadReportDetails({
     required String reportId,
     required String userId,
   }) async {
-    emit(state.copyWith(
-      status: ReportDetailsStatus.loading,
-      clearError: true,
-    ));
+    if (isClosed) return;
+
+    emit(state.copyWith(status: ReportDetailsStatus.loading, clearError: true));
 
     try {
       final report = await getReportById(reportId);
 
+      if (isClosed) return;
+
       if (report == null || report.deletedAt != null) {
-        emit(state.copyWith(
-          status: ReportDetailsStatus.notFound,
-          report: null,
-          upvotes: [],
-          hasUpvoted: false,
-        ));
+        emit(const ReportDetailsState(status: ReportDetailsStatus.notFound));
         return;
       }
 
-      final upvotes = await getUpvotes(reportId);
+      // Upvotes are only accessible on public reports.
+      final upvotes = report.status.isPublic
+          ? await getUpvotes(reportId)
+          : <Upvote>[];
 
-      final hasUpvoted = upvotes.any(
-        (upvote) => upvote.userId == userId,
+      if (isClosed) return;
+
+      final hasUpvoted = upvotes.any((upvote) => upvote.userId == userId);
+
+      emit(
+        state.copyWith(
+          status: ReportDetailsStatus.loaded,
+          report: report,
+          upvotes: upvotes,
+          hasUpvoted: hasUpvoted,
+          clearError: true,
+        ),
       );
-
-      emit(state.copyWith(
-        status: ReportDetailsStatus.loaded,
-        report: report,
-        upvotes: upvotes,
-        hasUpvoted: hasUpvoted,
-        clearError: true,
-      ));
     } catch (e) {
-      emit(state.copyWith(
-        status: ReportDetailsStatus.failure,
-        errorMessage: 'Unable to load report details. Please try again.',
-      ));
+      if (isClosed) return;
+
+      emit(
+        state.copyWith(
+          status: ReportDetailsStatus.failure,
+          errorMessage: 'Unable to load report details. Please try again.',
+        ),
+      );
     }
   }
 
   // TOGGLE UPVOTE
 
-  Future<void> toggleReportUpvote({
-    required String userId,
-  }) async {
+  Future<void> toggleReportUpvote({required String userId}) async {
     final report = state.report;
 
     if (report == null ||
+        !report.status.isPublic ||
         state.status != ReportDetailsStatus.loaded ||
         state.isUpvoting) {
       return;
     }
 
-    emit(state.copyWith(
-      isUpvoting: true,
-      clearError: true,
-    ));
+    emit(state.copyWith(isUpvoting: true, clearError: true));
 
     try {
-      await toggleUpvote(
-        reportId: report.reportId,
-        userId: userId,
-      );
+      await toggleUpvote(reportId: report.reportId, userId: userId);
 
       final updatedUpvotes = await getUpvotes(report.reportId);
 
@@ -92,17 +90,21 @@ class ReportDetailsCubit extends Cubit<ReportDetailsState> {
         (upvote) => upvote.userId == userId,
       );
 
-      emit(state.copyWith(
-        upvotes: updatedUpvotes,
-        hasUpvoted: hasUpvoted,
-        isUpvoting: false,
-        clearError: true,
-      ));
+      emit(
+        state.copyWith(
+          upvotes: updatedUpvotes,
+          hasUpvoted: hasUpvoted,
+          isUpvoting: false,
+          clearError: true,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        isUpvoting: false,
-        errorMessage: 'Unable to update your upvote. Please try again.',
-      ));
+      emit(
+        state.copyWith(
+          isUpvoting: false,
+          errorMessage: 'Unable to update your upvote. Please try again.',
+        ),
+      );
     }
   }
 
@@ -112,10 +114,7 @@ class ReportDetailsCubit extends Cubit<ReportDetailsState> {
     required String reportId,
     required String userId,
   }) async {
-    await loadReportDetails(
-      reportId: reportId,
-      userId: userId,
-    );
+    await loadReportDetails(reportId: reportId, userId: userId);
   }
 
   // RESET STATE
