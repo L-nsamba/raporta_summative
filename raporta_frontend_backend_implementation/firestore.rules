@@ -34,6 +34,146 @@ service cloud.firestore {
       return userProfileExists()
         && currentUserRole() == 'official';
     }
+    
+    function designatedOfficialId() {
+      return get(
+        /databases/$(database)/documents/app_config/moderation
+      ).data.officialId;
+    }
+
+    function isDesignatedOfficial(userId) {
+      return userId is string
+        && userId == designatedOfficialId()
+        && exists(
+          /databases/$(database)/documents/users/$(userId)
+        )
+        && get(
+          /databases/$(database)/documents/users/$(userId)
+        ).data.role == 'official';
+    }
+
+    function isPublicUpvoteReport(data) {
+      return data.deletedAt == null
+        && data.status in [
+          'under_review',
+          'forwarded',
+          'in_progress',
+          'resolved'
+        ];
+    }
+
+    function isPublicReportForUpvote(reportId) {
+      let reportPath =
+        /databases/$(database)/documents/reports/$(reportId);
+
+      return exists(reportPath)
+        && isPublicUpvoteReport(get(reportPath).data);
+    }
+
+    function isPublicReportAfterUpvote(reportId) {
+      let reportPath =
+        /databases/$(database)/documents/reports/$(reportId);
+
+      return existsAfter(reportPath)
+        && isPublicUpvoteReport(getAfter(reportPath).data);
+    }
+
+    function isNewUpvote(reportId, voterId) {
+      let upvotePath =
+        /databases/$(database)/documents/reports/$(reportId)/upvotes/$(voterId);
+
+      return !exists(upvotePath)
+        && existsAfter(upvotePath)
+        && getAfter(upvotePath).data.userId == voterId
+        && getAfter(upvotePath).data.createdAt == request.time;
+    }
+
+    function isNewUpvoteMarker(reportId, voterId) {
+      let markerPath =
+        /databases/$(database)/documents/reports/$(reportId)/upvote_notification_markers/$(voterId);
+
+      return !exists(markerPath)
+        && existsAfter(markerPath)
+        && getAfter(markerPath).data.userId == voterId
+        && getAfter(markerPath).data.createdAt == request.time;
+    }
+
+    function isValidUpvoteNotification(notificationId) {
+      let data = request.resource.data;
+      let voterId = request.auth.uid;
+
+      let reportPath =
+        /databases/$(database)/documents/reports/$(data.reportId);
+
+      let report = get(reportPath).data;
+
+      return isPublicUpvoteReport(report)
+        && isPublicReportAfterUpvote(data.reportId)
+
+        // No self-upvote notifications.
+        && report.userId != voterId
+
+        // Notification must go to the report owner.
+        && data.userId == report.userId
+
+        // The ID and message must match.
+        && notificationId ==
+          data.reportId + '_upvote_' + voterId
+
+        && data.message ==
+          'Someone has upvoted your report.'
+
+        // Both the upvote and marker must be new.
+        && isNewUpvote(data.reportId, voterId)
+        && isNewUpvoteMarker(data.reportId, voterId);
+    }
+
+    function hasRequiredUpvoteNotification(reportId, voterId) {
+      let reportPath =
+        /databases/$(database)/documents/reports/$(reportId);
+
+      let notificationId =
+        reportId + '_upvote_' + voterId;
+
+      let notificationPath =
+        /databases/$(database)/documents/notifications/$(notificationId);
+
+      let notification = getAfter(notificationPath).data;
+
+      return !exists(notificationPath)
+        && existsAfter(notificationPath)
+
+        && notification.reportId == reportId
+        && notification.userId ==
+          get(reportPath).data.userId
+
+        && notification.message ==
+          'Someone has upvoted your report.'
+
+        && notification.read == false
+        && notification.createdAt == request.time
+        && notification.updatedAt == request.time;
+    }
+
+    function hasRequiredUpvoteMarker(reportId, voterId) {
+      let reportPath =
+        /databases/$(database)/documents/reports/$(reportId);
+
+      let markerPath =
+        /databases/$(database)/documents/reports/$(reportId)/upvote_notification_markers/$(voterId);
+
+      let ownerId = get(reportPath).data.userId;
+
+      return
+        // Self-upvotes do not require notifications.
+        ownerId == voterId
+
+        // Previously notified: allow another upvote.
+        || exists(markerPath)
+
+        // First upvote: require a new marker.
+        || isNewUpvoteMarker(reportId, voterId);
+    }
 
     // ------------------------------------
     // Reference data helpers
@@ -179,6 +319,66 @@ service cloud.firestore {
 
         // The report must be updated in this request.
         && after.updatedAt == request.time;
+    }
+
+    function isValidNewReportNotification(notificationId) {
+      let data = request.resource.data;
+
+      let reportPath =
+        /databases/$(database)/documents/reports/$(data.reportId);
+
+      let report = getAfter(reportPath).data;
+
+      return
+        // The notification must accompany a newly created report.
+        !exists(reportPath)
+        && existsAfter(reportPath)
+
+        // The report must belong to the submitting citizen.
+        && report.userId == request.auth.uid
+
+        // It must be a new, pending report.
+        && report.status == 'pending'
+        && report.deletedAt == null
+        && report.createdAt == request.time
+        && report.updatedAt == request.time
+
+        // The recipient must be the designated official.
+        && isDesignatedOfficial(data.userId)
+
+        // The ID and message must match the submission event.
+        && notificationId == data.reportId + '_new_report'
+        && data.message ==
+          'A new report has been submitted for review.';
+    }
+
+    function hasRequiredNewReportNotification(reportId) {
+      let notificationId = reportId + '_new_report';
+
+      let notificationPath =
+        /databases/$(database)/documents/notifications/$(notificationId);
+
+      let notification = getAfter(notificationPath).data;
+
+      return
+        // The notification must be created in this batch.
+        !exists(notificationPath)
+        && existsAfter(notificationPath)
+
+        // It must reference the newly submitted report.
+        && notification.reportId == reportId
+
+        // It must go to the designated official.
+        && isDesignatedOfficial(notification.userId)
+
+        // Validate the predefined message and unread state.
+        && notification.message ==
+          'A new report has been submitted for review.'
+        && notification.read == false
+
+        // Both timestamps must reflect the current request.
+        && notification.createdAt == request.time
+        && notification.updatedAt == request.time;
     }
 
     function hasValidAgencyAssignment() {
@@ -403,9 +603,11 @@ service cloud.firestore {
         && request.resource.data.agencyId == null
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time
-        && request.resource.data.deletedAt == null;
+        && request.resource.data.deletedAt == null
+        && hasRequiredNewReportNotification(reportId);
 
       // Officials can update moderation-related fields only.
+      // Every status transition must include its notification.
       allow update: if isOfficial()
         && isActiveReport()
         && request.resource.data.diff(resource.data)
@@ -423,7 +625,9 @@ service cloud.firestore {
           request.resource.data.status
         )
         && hasValidAgencyAssignment()
-        && hasValidModerationData();
+        && hasValidModerationData()
+        && hasRequiredStatusNotification(reportId);
+
 
       // Citizens can soft-delete their own pending reports.
       allow update: if isCitizen()
@@ -473,13 +677,20 @@ service cloud.firestore {
 
         allow create: if isSignedIn()
           && request.auth.uid == userId
+
           && parentReportIsPublic()
+          && isPublicReportAfterUpvote(reportId)
+
           && request.resource.data.keys().hasOnly([
             'userId',
             'createdAt'
           ])
+
           && request.resource.data.userId == userId
-          && request.resource.data.createdAt == request.time;
+          && request.resource.data.createdAt == request.time
+
+          && hasRequiredUpvoteMarker(reportId, userId);
+
 
         allow delete: if isSignedIn()
           && request.auth.uid == userId
@@ -488,7 +699,51 @@ service cloud.firestore {
         allow update: if false;
       }
 
+    // ------------------------------------
+    // Upvote notification markers
+    // ------------------------------------
+
+    match /upvote_notification_markers/{userId} {
+
+      // Voters can only retrieve their own marker.
+      allow get: if isSignedIn()
+        && request.auth.uid == userId
+        && isPublicReportForUpvote(reportId);
+
+      allow list: if false;
+
+      // A marker can only be created with a legitimate
+      // new upvote and its corresponding notification.
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+
+        && isPublicReportForUpvote(reportId)
+        && isPublicReportAfterUpvote(reportId)
+
+        && get(
+          /databases/$(database)/documents/reports/$(reportId)
+        ).data.userId != userId
+
+        && request.resource.data.keys().hasAll([
+          'userId',
+          'createdAt'
+        ])
+
+        && request.resource.data.keys().hasOnly([
+          'userId',
+          'createdAt'
+        ])
+
+        && request.resource.data.userId == userId
+        && request.resource.data.createdAt == request.time
+
+        && isNewUpvote(reportId, userId)
+        && hasRequiredUpvoteNotification(reportId, userId);
+
+      // Markers are permanent.
+      allow update, delete: if false;
     }
+  }
 
   // ------------------------------------
   // Notifications
@@ -501,9 +756,21 @@ service cloud.firestore {
         && resource.data.userId == request.auth.uid;
 
       // Officials can create valid report status notifications.
-      allow create: if isOfficial()
+      allow create: if isSignedIn()
         && hasValidNotificationData()
-        && isValidStatusNotification(notificationId);
+        && (
+          (
+            isOfficial()
+            && isValidStatusNotification(notificationId)
+          )
+          ||
+          (
+            isCitizen()
+            && isValidNewReportNotification(notificationId)
+          )
+          ||
+          isValidUpvoteNotification(notificationId)
+        );
 
       // Users may only mark their own notifications as read.
       allow update: if isSignedIn()
@@ -527,6 +794,20 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+  // ------------------------------------
+  // Appconfig
+  // ------------------------------------
+
+    match /app_config/{configId} {
+
+      // Signed-in users can retrieve the moderation configuration.
+      allow get: if isSignedIn()
+        && configId == 'moderation';
+
+      // Clients cannot list or modify configuration documents.
+      allow list: if false;
+      allow create, update, delete: if false;
+    }
 
     // ------------------------------------
     // Default deny
