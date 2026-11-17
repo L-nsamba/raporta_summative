@@ -27,6 +27,8 @@ class FakeReportsRepository implements ReportsRepository {
   int updateStatusCallCount = 0;
   int forwardReportCallCount = 0;
   int declineReportCallCount = 0;
+  int createReportCallCount = 0;
+  Report? lastCreatedReport;
 
   String? lastUpdatedReportId;
   ReportStatus? lastStatus;
@@ -40,6 +42,9 @@ class FakeReportsRepository implements ReportsRepository {
 
   @override
   Future<String> createReport(Report report) async {
+    createReportCallCount++;
+    lastCreatedReport = report;
+
     if (shouldThrowError) {
       throw Exception('Failed to create report');
     }
@@ -49,6 +54,9 @@ class FakeReportsRepository implements ReportsRepository {
 
   @override
   Future<List<Report>> getReports() async => [];
+
+  @override
+  Future<List<Report>> getPublicReports() async => [];
 
   @override
   Future<Report?> getReportById(String reportId) async {
