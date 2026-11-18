@@ -6,6 +6,7 @@ import 'package:raporta_frontend_backend_implementation/app/router/route_names.d
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_form_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_form_state.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/report_details_step_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/report_location_step_page.dart';
 
 class CreateReportPage extends StatelessWidget {
   const CreateReportPage({super.key});
@@ -54,22 +55,7 @@ class _ReportSubmissionView extends StatelessWidget {
                 child: switch (state.currentStep) {
                   0 => const ReportDetailsStepPage(),
 
-                  // Our location step will come here next
-                  1 => Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('Location step coming next'),
-                        const SizedBox(height: 12),
-                        TextButton(
-                          onPressed: () {
-                            context.read<ReportFormCubit>().previousStep();
-                          },
-                          child: const Text('Back'),
-                        ),
-                      ],
-                    ),
-                  ),
+                  1 => const ReportLocationStepPage(),
 
                   // Review and submission after location step
                   _ => const Center(child: Text('Review step coming next')),

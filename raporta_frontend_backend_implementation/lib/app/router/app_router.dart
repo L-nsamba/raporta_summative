@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/login_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/register_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/verify_email_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/welcome_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/dashboard/presentation/pages/citizen_dashboard_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/create_report_page.dart';
 
 import '../../core/enums/user_role.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -116,9 +118,7 @@ class AppRouter {
 
       GoRoute(
         path: RouteNames.emailVerification,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Email Verification page in progress')),
-        ),
+        builder: (context, state) => const VerifyEmailPage(),
       ),
 
       // =========================
@@ -131,9 +131,7 @@ class AppRouter {
 
       GoRoute(
         path: RouteNames.createReport,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Create Report in progress')),
-        ),
+        builder: (context, state) => const CreateReportPage()
       ),
 
       GoRoute(
