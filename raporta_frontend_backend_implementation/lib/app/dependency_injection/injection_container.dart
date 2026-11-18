@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 import 'package:raporta_frontend_backend_implementation/features/areas/data/datasources/area_remote_datasource.imp.dart';
 import 'package:raporta_frontend_backend_implementation/features/areas/data/datasources/areas_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/areas/data/repositories/areas_repository_impl.dart';
@@ -46,9 +47,12 @@ import 'package:raporta_frontend_backend_implementation/features/profile/domain/
 import 'package:raporta_frontend_backend_implementation/features/profile/domain/usecases/get_preferences.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/domain/usecases/save_preferences.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/presentation/bloc/preferences_cubit.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/report_photo_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/datasources/reports_remote_datasource_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/data/repositories/report_photo_repository_impl.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/data/repositories/reports_repository_impl.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/repositories/report_photo_repository.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/repositories/reports_repository.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/create_report.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/decline_report.dart';
@@ -61,6 +65,7 @@ import 'package:raporta_frontend_backend_implementation/features/reports/domain/
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_upvote.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/toggle_upvote.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/update_report_status.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/upload_report_photo.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/bloc/reports_bloc.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/bloc/reports_scope.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/my_reports_cubit.dart';
@@ -186,8 +191,33 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton(() => ToggleUpvote(repository: sl()));
 
-  sl.registerFactory(
-    () => ReportFormCubit(createReport: sl(), uploadReportPhoto: sl()),
+  // CLOUDINARY PHOTO UPLOAD
+
+  // HTTP client
+  sl.registerLazySingleton<http.Client>(() => http.Client());
+
+  // Remote datasource
+  sl.registerLazySingleton<ReportPhotoRemoteDataSource>(
+    () => ReportPhotoRemoteDataSourceImpl(client: sl<http.Client>()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<ReportPhotoRepository>(
+    () => ReportPhotoRepositoryImpl(
+      remoteDataSource: sl<ReportPhotoRemoteDataSource>(),
+    ),
+  );
+
+  // Use case
+  sl.registerLazySingleton<UploadReportPhoto>(
+    () => UploadReportPhoto(repository: sl<ReportPhotoRepository>()),
+  );
+
+  sl.registerFactory<ReportFormCubit>(
+    () => ReportFormCubit(
+      createReport: sl<CreateReport>(),
+      uploadReportPhoto: sl<UploadReportPhoto>(),
+    ),
   );
 
   sl.registerFactory(
