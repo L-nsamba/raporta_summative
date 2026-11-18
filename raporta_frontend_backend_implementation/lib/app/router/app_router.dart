@@ -5,6 +5,7 @@ import 'package:raporta_frontend_backend_implementation/features/auth/presentati
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/login_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/register_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/welcome_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/dashboard/presentation/pages/citizen_dashboard_page.dart';
 
 import '../../core/enums/user_role.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -125,9 +126,7 @@ class AppRouter {
       // =========================
       GoRoute(
         path: RouteNames.citizenDashboard,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Citizen Dashboard in progress')),
-        ),
+        builder: (context, state) => const CitizenDashboardPage()
       ),
 
       GoRoute(
