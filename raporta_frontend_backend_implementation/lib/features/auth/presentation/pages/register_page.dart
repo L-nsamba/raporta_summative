@@ -210,12 +210,15 @@ class _RegisterViewState extends State<_RegisterView> {
                     BlocBuilder<AreasCubit, AreasState> (
                       builder: (context, areasState) {
                         if (areasState.status == AreasStatus.loading || areasState.status == AreasStatus.initial) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                            child: SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                          return const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
                             ),
                           );
                         }

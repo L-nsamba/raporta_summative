@@ -51,8 +51,11 @@ class WelcomePage extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.accent,
                       foregroundColor: Colors.white,
+                      minimumSize: const Size.fromHeight(48),
+                      padding: EdgeInsets.zero,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     onPressed: () => context.go(RouteNames.login),
