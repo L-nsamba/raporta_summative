@@ -16,38 +16,54 @@ class WelcomePage extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 72),
-              Text(
-                'See It. Report It. Track It.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'See It. Report It. Track It.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
                 ),
-              ),
-
-              const SizedBox(height: 16),
-              Text(
-                'Report local community issues, stay informed and '
-                'help create a responsive society',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                const SizedBox(height: 16),
+                Text(
+                  'Report local community issues, stay informed and '
+                  'help create a responsive society',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
-              ),
-
-              const SizedBox(height: 12),
-              AppButton(
-                label: 'Log into existing account',
-                variant: AppButtonVariant.secondary,
-                onPressed: () => context.go(RouteNames.login),
-              ),
-
-              const Spacer(),
-            ],
+                const SizedBox(height: 40),
+                AppButton(
+                  label: 'Create an account',
+                  onPressed: () => context.go(RouteNames.register),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.accent,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size.fromHeight(48),
+                      padding: EdgeInsets.zero,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => context.go(RouteNames.login),
+                    child: const Text('Log into existing account'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

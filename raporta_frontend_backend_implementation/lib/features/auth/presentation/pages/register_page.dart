@@ -180,7 +180,7 @@ class _RegisterViewState extends State<_RegisterView> {
                     ),
 
                     const SizedBox(height: 20),
-                    const Text('COnfirm Password', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text('Confirm Password', style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     AppTextField(
                       label: '',
@@ -207,12 +207,37 @@ class _RegisterViewState extends State<_RegisterView> {
                     const SizedBox(height: 20),
                     const Text('Area', style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
-                    BlocBuilder<AreasCubit, AreasState>(
+                    BlocBuilder<AreasCubit, AreasState> (
                       builder: (context, areasState) {
+                        if (areasState.status == AreasStatus.loading || areasState.status == AreasStatus.initial) {
+                          return const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ),
+                          );
+                        }
+
+                        if (areasState.status == AreasStatus.failure) {
+                          return Text(
+                            areasState.errorMessage ?? 'Unable to load areas. Please try again.',
+                            style: const TextStyle(color: AppColors.error),
+                          );
+                        }
+
+                        if (areasState.areas.isEmpty) {
+                          return const Text('No areas are available right now.');
+                        }
+
                         return DropdownButtonFormField<String>(
                           initialValue: _selectedAreaId,
                           decoration: InputDecoration(
-                            hintText: 'Kimironko or Remera',
+                            hintText: 'Please select an area.',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -225,8 +250,7 @@ class _RegisterViewState extends State<_RegisterView> {
                               ),
                             )
                             .toList(),
-                          onChanged: (value) =>
-                            setState(() => _selectedAreaId = value),
+                          onChanged: (value) => setState(() => _selectedAreaId = value),
                         );
                       },
                     ),
