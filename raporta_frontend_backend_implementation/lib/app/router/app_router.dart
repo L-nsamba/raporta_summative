@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/forgot_password_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/login_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/register_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/welcome_page.dart';
 
 import '../../core/enums/user_role.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -91,29 +95,22 @@ class AppRouter {
       // =========================
       GoRoute(
         path: RouteNames.welcome,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Welcome page in progress')),
-        ),
+        builder: (context, state) => const WelcomePage(),
       ),
 
       GoRoute(
         path: RouteNames.login,
-        builder: (context, state) =>
-            const Scaffold(body: Center(child: Text('Login page in progress'))),
+        builder: (context, state) => const LoginPage(),
       ),
 
       GoRoute(
         path: RouteNames.register,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Registration page in progress')),
-        ),
+        builder: (context, state) => const RegisterPage(),
       ),
 
       GoRoute(
         path: RouteNames.forgotPassword,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Forgot Password page in progress')),
-        ),
+        builder: (context, state) => const ForgotPasswordPage(),
       ),
 
       GoRoute(
