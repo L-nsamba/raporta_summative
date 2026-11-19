@@ -194,7 +194,7 @@ class _CitizenDashboardView extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'Lateset Reports in Your Area',
+                        'Latest Reports in Your Area',
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
