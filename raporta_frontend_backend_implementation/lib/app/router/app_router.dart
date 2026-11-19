@@ -11,6 +11,7 @@ import 'package:raporta_frontend_backend_implementation/features/dashboard/prese
 import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/pages/report_moderation_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/presentation/pages/profile_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/create_report_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/pages/report_management_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/my_reports_page.dart';
 
 import '../../core/enums/user_role.dart';
@@ -175,9 +176,7 @@ class AppRouter {
 
       GoRoute(
         path: RouteNames.assignedReports,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Manage Reports in progress')),
-        ),
+        builder: (context, state) => const ReportManagementPage(),
       ),
 
       GoRoute(
