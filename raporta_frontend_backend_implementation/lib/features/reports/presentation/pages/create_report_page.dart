@@ -5,6 +5,7 @@ import 'package:raporta_frontend_backend_implementation/app/dependency_injection
 import 'package:raporta_frontend_backend_implementation/app/router/route_names.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_form_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/cubit/report_form_state.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/report_confirmation_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/report_details_step_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/report_location_step_page.dart';
 
@@ -32,14 +33,19 @@ class _ReportSubmissionView extends StatelessWidget {
             title: const Text('Report an Issue'),
             leading: IconButton(
               icon: Icon(
-                state.currentStep == 0 ? Icons.close : Icons.arrow_back,
+                state.submissionStatus == FormSubmissionStatus.success
+                    ? Icons.close
+                    : state.currentStep == 0
+                    ? Icons.close
+                    : Icons.arrow_back,
               ),
               onPressed: state.isBusy
                   ? null
                   : () {
-                      if (state.currentStep > 0 &&
-                          state.submissionStatus !=
-                              FormSubmissionStatus.success) {
+                      if (state.submissionStatus ==
+                          FormSubmissionStatus.success) {
+                        context.go(RouteNames.citizenDashboard);
+                      } else if (state.currentStep > 0) {
                         context.read<ReportFormCubit>().previousStep();
                       } else {
                         context.go(RouteNames.citizenDashboard);
@@ -57,8 +63,9 @@ class _ReportSubmissionView extends StatelessWidget {
 
                   1 => const ReportLocationStepPage(),
 
-                  // Review and submission after location step
-                  _ => const Center(child: Text('Review step coming next')),
+                  2 => const ReportConfirmationPage(),
+
+                  _ => const Center(child: Text('Unknown report step')),
                 },
               ),
             ],

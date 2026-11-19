@@ -8,6 +8,8 @@ import 'package:raporta_frontend_backend_implementation/features/auth/presentati
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/welcome_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/dashboard/presentation/pages/citizen_dashboard_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/dashboard/presentation/pages/official_dashboard_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/presentation/pages/edit_account_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/presentation/pages/profile_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/create_report_page.dart';
 
 import '../../core/enums/user_role.dart';
@@ -127,12 +129,12 @@ class AppRouter {
       // =========================
       GoRoute(
         path: RouteNames.citizenDashboard,
-        builder: (context, state) => const CitizenDashboardPage()
+        builder: (context, state) => const CitizenDashboardPage(),
       ),
 
       GoRoute(
         path: RouteNames.createReport,
-        builder: (context, state) => const CreateReportPage()
+        builder: (context, state) => const CreateReportPage(),
       ),
 
       GoRoute(
@@ -208,16 +210,12 @@ class AppRouter {
       // =========================
       GoRoute(
         path: RouteNames.profile,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Profile page in progress')),
-        ),
+        builder: (context, state) => const ProfilePage(),
       ),
 
       GoRoute(
         path: RouteNames.editAccount,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Edit Account page in progress')),
-        ),
+        builder: (context, state) => const EditAccountPage(),
       ),
     ],
   );
