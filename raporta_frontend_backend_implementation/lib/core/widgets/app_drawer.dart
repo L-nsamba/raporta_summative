@@ -7,6 +7,7 @@ enum AppDrawerDestination {
   exploreReports,
   createReport,
   myReports,
+  reportQueue,
   manageReports,
   notifications,
   profile,
@@ -35,25 +36,26 @@ class AppDrawer extends StatelessWidget {
     this.enabledDestinations,
   });
 
-  List<AppDrawerDestination> get _destinations {
-    if (role == UserRole.official) {
-      return const [
-        AppDrawerDestination.dashboard,
-        AppDrawerDestination.manageReports,
-        AppDrawerDestination.notifications,
-        AppDrawerDestination.profile,
-      ];
-    }
-
+List<AppDrawerDestination> get _destinations {
+  if (role == UserRole.official) {
     return const [
       AppDrawerDestination.dashboard,
-      AppDrawerDestination.exploreReports,
-      AppDrawerDestination.createReport,
-      AppDrawerDestination.myReports,
+      AppDrawerDestination.reportQueue,
+      AppDrawerDestination.manageReports,
       AppDrawerDestination.notifications,
       AppDrawerDestination.profile,
     ];
   }
+
+  return const [
+    AppDrawerDestination.dashboard,
+    AppDrawerDestination.exploreReports,
+    AppDrawerDestination.createReport,
+    AppDrawerDestination.myReports,
+    AppDrawerDestination.notifications,
+    AppDrawerDestination.profile,
+  ];
+}
 
   String _label(AppDrawerDestination destination) {
     return switch (destination) {
@@ -61,6 +63,7 @@ class AppDrawer extends StatelessWidget {
       AppDrawerDestination.exploreReports => 'Explore Reports',
       AppDrawerDestination.createReport => 'Report an Issue',
       AppDrawerDestination.myReports => 'My Reports',
+      AppDrawerDestination.reportQueue => 'Report Queue',
       AppDrawerDestination.manageReports => 'Manage Reports',
       AppDrawerDestination.notifications => 'Notifications',
       AppDrawerDestination.profile => 'Profile',
@@ -73,6 +76,7 @@ class AppDrawer extends StatelessWidget {
       AppDrawerDestination.exploreReports => Icons.travel_explore_outlined,
       AppDrawerDestination.createReport => Icons.add_circle_outline,
       AppDrawerDestination.myReports => Icons.description_outlined,
+      AppDrawerDestination.reportQueue => Icons.pending_actions_outlined,
       AppDrawerDestination.manageReports => Icons.assignment_outlined,
       AppDrawerDestination.notifications => Icons.notifications_outlined,
       AppDrawerDestination.profile => Icons.person_outline,
