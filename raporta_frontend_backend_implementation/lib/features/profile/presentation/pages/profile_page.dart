@@ -8,7 +8,6 @@ import '../../../../core/enums/user_role.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../areas/domain/entities/area.dart';
 import '../../../areas/presentation/bloc/areas_cubit.dart';
-import '../../../areas/presentation/bloc/areas_state.dart';
 import '../../../auth/domain/entities/app_user.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
