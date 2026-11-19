@@ -146,9 +146,10 @@ class _ProfileView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           ListTile(
+            contentPadding: EdgeInsets.zero,
             leading: CircleAvatar(
-              backgroundColor: Colors.grey.shade100,
-              child: const Icon(Icons.person_outline, color: Colors.black87),
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+              child: const Icon(Icons.person_outline, color: AppColors.background),
             ),
             title: const Text(
               'My Account',
@@ -162,9 +163,10 @@ class _ProfileView extends StatelessWidget {
           const ThemeToggleTile(),
           const Divider(height: 32),
           ListTile(
+            contentPadding: EdgeInsets.zero,
             leading: CircleAvatar(
-              backgroundColor: Colors.grey.shade100,
-              child: const Icon(Icons.logout, color: Colors.black87),
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+              child: const Icon(Icons.logout, color: AppColors.background),
             ),
             title: const Text(
               'Log out',
