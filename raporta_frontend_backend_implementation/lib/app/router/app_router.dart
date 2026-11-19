@@ -8,6 +8,7 @@ import 'package:raporta_frontend_backend_implementation/features/auth/presentati
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/pages/welcome_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/dashboard/presentation/pages/citizen_dashboard_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/dashboard/presentation/pages/official_dashboard_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/pages/report_moderation_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/presentation/pages/edit_account_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/presentation/pages/profile_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/create_report_page.dart';
@@ -182,9 +183,7 @@ class AppRouter {
 
       GoRoute(
         path: RouteNames.reportQueue,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Report Queue in progress')),
-        ),
+        builder: (context, state) => const ReportModerationPage(),
       ),
 
       GoRoute(
