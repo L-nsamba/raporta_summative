@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../enums/user_role.dart';
+import '../theme/app_colors.dart';
 
 enum AppDrawerDestination {
   dashboard,
@@ -95,6 +96,7 @@ List<AppDrawerDestination> get _destinations {
         child: Column(
           children: [
             UserAccountsDrawerHeader(
+              decoration: const BoxDecoration(color: AppColors.primary),
               accountName: Text(userName),
               accountEmail: Text(userEmail ?? ''),
               currentAccountPicture: CircleAvatar(
