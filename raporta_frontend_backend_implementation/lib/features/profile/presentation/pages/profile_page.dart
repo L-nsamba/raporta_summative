@@ -62,7 +62,7 @@ class _ProfileView extends StatelessWidget {
         context.go(RouteNames.myReports);
       case AppDrawerDestination.manageReports:
         context.go(RouteNames.assignedReports);
-      case AppDrawerDestination.reportQueue:           // ADD THIS
+      case AppDrawerDestination.reportQueue:
         context.go(RouteNames.reportQueue);
       case AppDrawerDestination.notifications:
         context.go(isOfficial ? RouteNames.officialNotifications : RouteNames.notifications);
