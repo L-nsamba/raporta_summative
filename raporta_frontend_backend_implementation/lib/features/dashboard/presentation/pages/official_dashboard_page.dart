@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,6 +6,7 @@ import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../bloc/dashboard_cubit.dart';
 import '../bloc/dashboard_state.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
@@ -43,15 +43,24 @@ class OfficialDashboardView extends StatelessWidget {
   ) {
     final route = switch (destination) {
       AppDrawerDestination.dashboard => RouteNames.officialDashboard,
+
+      AppDrawerDestination.reportQueue => RouteNames.reportQueue,
+
       AppDrawerDestination.manageReports => RouteNames.assignedReports,
+
       AppDrawerDestination.notifications => RouteNames.officialNotifications,
+
       AppDrawerDestination.profile => RouteNames.profile,
 
-      // Citizen-only destinations are not used by the official drawer.
-      _ => RouteNames.officialDashboard,
+      // Citizen-only destinations.
+      AppDrawerDestination.exploreReports ||
+      AppDrawerDestination.createReport ||
+      AppDrawerDestination.myReports => null,
     };
 
-    context.go(route);
+    if (route != null) {
+      context.go(route);
+    }
   }
 
   Widget _buildStatisticsSection(
@@ -106,8 +115,7 @@ class OfficialDashboardView extends StatelessWidget {
 
               const spacing = 12.0;
               final cardWidth =
-                  (constraints.maxWidth - spacing * (columns - 1)) /
-                  columns;
+                  (constraints.maxWidth - spacing * (columns - 1)) / columns;
 
               return Wrap(
                 spacing: spacing,
@@ -140,7 +148,6 @@ class OfficialDashboardView extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _buildLatestReportsSection(
     BuildContext context,
@@ -197,9 +204,7 @@ class OfficialDashboardView extends StatelessWidget {
 
                   // Refresh the dashboard when returning from details.
                   if (context.mounted) {
-                    context
-                        .read<DashboardCubit>()
-                        .loadOfficialDashboard();
+                    context.read<DashboardCubit>().loadOfficialDashboard();
                   }
                 },
               ),
@@ -207,7 +212,6 @@ class OfficialDashboardView extends StatelessWidget {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -270,9 +274,7 @@ class OfficialDashboardView extends StatelessWidget {
                 Text(
                   'Here is an overview of civic reports.',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onPrimary.withValues(
-                      alpha: 0.85,
-                    ),
+                    color: theme.colorScheme.onPrimary.withValues(alpha: 0.85),
                   ),
                 ),
               ],
@@ -294,13 +296,12 @@ class OfficialDashboardView extends StatelessWidget {
                     return EmptyState(
                       icon: Icons.error_outline,
                       title: 'Unable to load dashboard',
-                      message: state.errorMessage ??
+                      message:
+                          state.errorMessage ??
                           'Something went wrong. Please try again.',
                       actionLabel: 'Retry',
                       onAction: () {
-                        context
-                            .read<DashboardCubit>()
-                            .loadOfficialDashboard();
+                        context.read<DashboardCubit>().loadOfficialDashboard();
                       },
                     );
 
@@ -316,35 +317,34 @@ class OfficialDashboardView extends StatelessWidget {
                     }
 
                     // Temporary content from Step 1.
-                    
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Section 1: Statistics cards
-                        _buildStatisticsSection(context, stats),
 
-                        // Section 2: Weekly reports chart
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: WeeklyReportsChart(
-                            weeklyReports: stats.weeklyReports,
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Section 1: Statistics cards
+                          _buildStatisticsSection(context, stats),
+
+                          // Section 2: Weekly reports chart
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: WeeklyReportsChart(
+                              weeklyReports: stats.weeklyReports,
+                            ),
                           ),
-                        ),
 
-                        const SizedBox(height: 24),
+                          const SizedBox(height: 24),
 
-                        // Section 3: Latest reports
-                        _buildLatestReportsSection(
-                          context,
-                          stats.latestReports,
-                        ),
+                          // Section 3: Latest reports
+                          _buildLatestReportsSection(
+                            context,
+                            stats.latestReports,
+                          ),
 
-                        const SizedBox(height: 24),
-                      ],
-                    ),
-                  );
-
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    );
                 }
               },
             ),
@@ -354,4 +354,3 @@ class OfficialDashboardView extends StatelessWidget {
     );
   }
 }
-

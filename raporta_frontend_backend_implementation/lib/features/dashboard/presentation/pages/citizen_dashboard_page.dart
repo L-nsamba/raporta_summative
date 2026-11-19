@@ -72,16 +72,20 @@ class _CitizenDashboardView extends StatelessWidget {
         context.go(RouteNames.myReports);
         break;
 
+      case AppDrawerDestination.reportQueue:
+        // Official-only destination.
+        break;
+
+      case AppDrawerDestination.manageReports:
+        // Official-only destination.
+        break;
+
       case AppDrawerDestination.notifications:
         context.go(RouteNames.notifications);
         break;
 
       case AppDrawerDestination.profile:
         context.go(RouteNames.profile);
-        break;
-
-      case AppDrawerDestination.manageReports:
-        // Official-only destination.
         break;
     }
   }
