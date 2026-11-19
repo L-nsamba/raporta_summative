@@ -8,7 +8,6 @@ import '../../../../core/enums/user_role.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../areas/domain/entities/area.dart';
 import '../../../areas/presentation/bloc/areas_cubit.dart';
-import '../../../areas/presentation/bloc/areas_state.dart';
 import '../../../auth/domain/entities/app_user.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
@@ -88,12 +87,18 @@ class _ProfileView extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         user.email,
-                        style: const TextStyle(color: Colors.white70, fontSize: 13),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         _areaSubtitle(user, areasState.areas),
-                        style: const TextStyle(color: Colors.white70, fontSize: 13),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -107,7 +112,10 @@ class _ProfileView extends StatelessWidget {
               backgroundColor: Colors.grey.shade100,
               child: const Icon(Icons.person_outline, color: Colors.black87),
             ),
-            title: const Text('My Account', style: TextStyle(fontWeight: FontWeight.w600)),
+            title: const Text(
+              'My Account',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             subtitle: const Text('Edit your personal information'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.go(RouteNames.editAccount),
@@ -120,7 +128,10 @@ class _ProfileView extends StatelessWidget {
               backgroundColor: Colors.grey.shade100,
               child: const Icon(Icons.logout, color: Colors.black87),
             ),
-            title: const Text('Log out', style: TextStyle(fontWeight: FontWeight.w600)),
+            title: const Text(
+              'Log out',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             subtitle: const Text('Exit your account'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.read<AuthBloc>().add(AuthLogoutRequested()),

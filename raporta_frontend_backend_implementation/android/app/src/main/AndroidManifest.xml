@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    
     <application
         android:label="raporta_frontend_backend_implementation"
         android:name="${applicationName}"
