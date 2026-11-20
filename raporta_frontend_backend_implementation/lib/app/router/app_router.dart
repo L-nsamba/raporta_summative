@@ -12,8 +12,10 @@ import 'package:raporta_frontend_backend_implementation/features/moderation/pres
 import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/pages/report_moderation_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/presentation/pages/profile_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/create_report_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/explore_reports_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/my_reports_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/report_detail_page.dart';
+
 import '../../core/enums/user_role.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
@@ -141,9 +143,7 @@ class AppRouter {
 
       GoRoute(
         path: RouteNames.reports,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Browse Reports in progress')),
-        ),
+        builder: (context, state) => const ExploreReportsPage(),
       ),
 
       GoRoute(
@@ -167,6 +167,9 @@ class AppRouter {
         ),
       ),
 
+      // =========================
+      // OFFICIAL WORKFLOW
+      // =========================
       GoRoute(
         path: RouteNames.officialDashboard,
         builder: (context, state) => const OfficialDashboardPage(),
