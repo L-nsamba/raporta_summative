@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:raporta_frontend_backend_implementation/app/dependency_injection/injection_container.dart';
+import 'package:raporta_frontend_backend_implementation/core/widgets/app_drawer.dart';
+import 'package:raporta_frontend_backend_implementation/features/auth/presentation/bloc/auth_event.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../core/widgets/report_card.dart';
@@ -44,16 +46,74 @@ class _MyReportsView extends StatelessWidget {
     context.push(path);
   }
 
+  // Handles navigation from the shared drawer.
+  void _navigateFromDrawer(
+    BuildContext context,
+    AppDrawerDestination destination,
+  ) {
+    final route = switch (destination) {
+      AppDrawerDestination.dashboard => RouteNames.citizenDashboard,
+
+      AppDrawerDestination.exploreReports => RouteNames.reports,
+
+      AppDrawerDestination.createReport => RouteNames.createReport,
+
+      AppDrawerDestination.myReports => RouteNames.myReports,
+
+      AppDrawerDestination.notifications => RouteNames.notifications,
+
+      AppDrawerDestination.profile => RouteNames.profile,
+
+      // Official-only destinations.
+      AppDrawerDestination.reportQueue ||
+      AppDrawerDestination.manageReports => null,
+    };
+
+    if (route != null) {
+      context.go(route);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // AuthBloc is already provided globally in app.dart.
+    final user = context.watch<AuthBloc>().state.user;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Reports'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go(RouteNames.citizenDashboard),
+
+        // Explicitly use the drawer menu instead of a back arrow.
+        automaticallyImplyLeading: false,
+
+        leading: Builder(
+          builder: (scaffoldContext) {
+            return IconButton(
+              tooltip: 'Open navigation menu',
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(scaffoldContext).openDrawer();
+              },
+            );
+          },
         ),
       ),
+
+      drawer: user == null
+          ? null
+          : AppDrawer(
+              role: user.role,
+              userName: user.name,
+              userEmail: user.email,
+              selectedDestination: AppDrawerDestination.myReports,
+              onDestinationSelected: (destination) {
+                _navigateFromDrawer(context, destination);
+              },
+              onSignOut: () {
+                context.read<AuthBloc>().add(AuthLogoutRequested());
+              },
+            ),
+
       body: BlocBuilder<MyReportsCubit, MyReportsState>(
         builder: (context, state) {
           switch (state.status) {

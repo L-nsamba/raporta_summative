@@ -1,8 +1,6 @@
-
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/status_badge.dart';
-import '../../../../core/enums/report_category.dart';
 import '../../../reports/domain/entities/report.dart';
 
 class ApprovedReportCard extends StatelessWidget {
@@ -86,24 +84,20 @@ class ApprovedReportCard extends StatelessWidget {
 
                   Expanded(
                     child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Category heading.
                         Text(
                           report.category.displayName,
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
 
                         const SizedBox(height: 8),
 
                         // Current status.
-                        StatusBadge(
-                          status: report.status,
-                        ),
+                        StatusBadge(status: report.status),
 
                         const SizedBox(height: 8),
 
@@ -128,10 +122,8 @@ class ApprovedReportCard extends StatelessWidget {
                               child: Text(
                                 report.locationDescription,
                                 maxLines: 2,
-                                overflow:
-                                    TextOverflow.ellipsis,
-                                style:
-                                    theme.textTheme.bodySmall,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodySmall,
                               ),
                             ),
                           ],
@@ -150,8 +142,7 @@ class ApprovedReportCard extends StatelessWidget {
                             Flexible(
                               child: Text(
                                 _formatDate(report.createdAt),
-                                style:
-                                    theme.textTheme.bodySmall,
+                                style: theme.textTheme.bodySmall,
                               ),
                             ),
                           ],
@@ -174,10 +165,9 @@ class ApprovedReportCard extends StatelessWidget {
                       'ID: ${report.reportId}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.labelSmall
-                          ?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
 
@@ -185,10 +175,7 @@ class ApprovedReportCard extends StatelessWidget {
 
                   TextButton.icon(
                     onPressed: onViewDetails,
-                    icon: const Icon(
-                      Icons.visibility_outlined,
-                      size: 18,
-                    ),
+                    icon: const Icon(Icons.visibility_outlined, size: 18),
                     label: const Text('View Details'),
                   ),
                 ],
