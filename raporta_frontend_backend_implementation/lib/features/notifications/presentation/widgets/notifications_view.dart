@@ -140,6 +140,7 @@ class NotificationsView extends StatelessWidget {
         userName: user.name,
         userEmail: user.email,
         selectedDestination: AppDrawerDestination.notifications,
+        unreadNotificationsCount: notificationsState.unreadCount,
         onDestinationSelected: (destination) =>
             _onDrawerDestinationSelected(context, destination),
         onSignOut: () => context.read<AuthBloc>().add(AuthLogoutRequested()),

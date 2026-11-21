@@ -26,6 +26,8 @@ class AppDrawer extends StatelessWidget {
   /// Optionally hide destinations that are not implemented yet.
   final Set<AppDrawerDestination>? enabledDestinations;
 
+  final int? unreadNotificationsCount;
+
   const AppDrawer({
     super.key,
     required this.role,
@@ -35,6 +37,7 @@ class AppDrawer extends StatelessWidget {
     required this.onDestinationSelected,
     required this.onSignOut,
     this.enabledDestinations,
+    this.unreadNotificationsCount,
   });
 
 List<AppDrawerDestination> get _destinations {
@@ -123,6 +126,21 @@ List<AppDrawerDestination> get _destinations {
                     ListTile(
                       leading: Icon(_icon(destination)),
                       title: Text(_label(destination)),
+                      trailing: destination == AppDrawerDestination.notifications &&
+                          unreadNotificationsCount != null &&
+                          unreadNotificationsCount! > 0
+                        ? Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '$unreadNotificationsCount',
+                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                        )
+                        : null,
                       selected: selectedDestination == destination,
                       onTap: () {
                         Navigator.of(context).pop();
