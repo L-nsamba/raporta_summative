@@ -127,7 +127,34 @@ class ReportQueueView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Report Queue')),
+      appBar: AppBar(
+        title: const Text('Report Queue'),
+        leading: IconButton(
+          tooltip: 'Back to Dashboard',
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(RouteNames.officialDashboard);
+            }
+          },
+        ),
+        actions: [
+          IconButton(
+            tooltip: 'Refresh pending reports',
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              if (context.read<ModerationCubit>().state.status ==
+                  ModerationStatus.submitting) {
+                return;
+              }
+
+              context.read<ReportsBloc>().add(const RefreshReports());
+            },
+          ),
+        ],
+      ),
       body: BlocBuilder<ReportsBloc, ReportsState>(
         builder: (context, state) {
           switch (state.status) {

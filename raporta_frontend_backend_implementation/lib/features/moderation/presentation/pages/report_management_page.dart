@@ -305,6 +305,17 @@ class _ReportManagementViewState extends State<ReportManagementView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manage Reports'),
+        leading: IconButton(
+          tooltip: 'Back to Dashboard',
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(RouteNames.officialDashboard);
+            }
+          },
+        ),
         actions: [
           IconButton(
             tooltip: 'Refresh approved reports',
