@@ -10,6 +10,8 @@ import 'package:raporta_frontend_backend_implementation/features/dashboard/prese
 import 'package:raporta_frontend_backend_implementation/features/dashboard/presentation/pages/official_dashboard_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/pages/report_management_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/pages/report_moderation_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/presentation/pages/citizen_notifications_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/presentation/pages/official_notifications_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/presentation/pages/profile_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/create_report_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/explore_reports_page.dart';
@@ -162,9 +164,7 @@ class AppRouter {
 
       GoRoute(
         path: RouteNames.notifications,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Citizen Notifications in progress')),
-        ),
+        builder: (context, state) => const CitizenNotificationsPage(),
       ),
 
       // =========================
@@ -198,9 +198,7 @@ class AppRouter {
 
       GoRoute(
         path: RouteNames.officialNotifications,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Official Notifications in progress')),
-        ),
+        builder: (context, state) => const OfficialNotificationsPage(),
       ),
 
       // =========================
