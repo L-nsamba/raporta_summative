@@ -17,6 +17,7 @@ import 'package:raporta_frontend_backend_implementation/features/reports/present
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/explore_reports_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/my_reports_page.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/pages/report_detail_page.dart';
+import 'package:raporta_frontend_backend_implementation/features/moderation/presentation/pages/official_report_detail_page.dart';
 
 import '../../core/enums/user_role.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -190,8 +191,8 @@ class AppRouter {
         builder: (context, state) {
           final reportId = state.pathParameters['reportId']!;
 
-          return Scaffold(
-            body: Center(child: Text('Review Report: $reportId')),
+          return OfficialReportDetailPage(
+            reportId: reportId,
           );
         },
       ),
