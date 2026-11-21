@@ -24,14 +24,19 @@ class NotificationModel extends AppNotification {
       );
     }
 
+    // firestore briefly reports a pending FieldValue.serverTimestamp()
+    // write as null before the server resolves it. fall back instead of crashing
+    final createdAt = (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+    final updatedAt = (data['updatedAt'] as Timestamp?)?.toDate() ?? createdAt;
+
     return NotificationModel(
       notificationId: document.id,
       userId: data['userId'] as String,
       reportId: data['reportId'] as String,
       message: data['message'] as String,
       read: data['read'] as bool,
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+      createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 }
