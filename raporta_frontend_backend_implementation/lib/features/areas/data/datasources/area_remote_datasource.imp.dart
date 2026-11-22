@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:raporta_frontend_backend_implementation/core/constants/firestore_collections.dart';
 import 'package:raporta_frontend_backend_implementation/features/areas/data/datasources/areas_remote_datasource.dart';
@@ -7,9 +6,7 @@ import 'package:raporta_frontend_backend_implementation/features/areas/data/mode
 class AreasRemoteDataSourceImpl implements AreasRemoteDataSource {
   final FirebaseFirestore firestore;
 
-  AreasRemoteDataSourceImpl({
-    required this.firestore,
-  });
+  AreasRemoteDataSourceImpl({required this.firestore});
 
   @override
   Future<List<AreaModel>> getAreas() async {

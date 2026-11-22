@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/status_badge.dart';
@@ -54,10 +53,7 @@ class LatestReportTile extends StatelessWidget {
     );
 
     if (photoUrl == null || photoUrl.isEmpty) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: fallback,
-      );
+      return ClipRRect(borderRadius: BorderRadius.circular(8), child: fallback);
     }
 
     return ClipRRect(

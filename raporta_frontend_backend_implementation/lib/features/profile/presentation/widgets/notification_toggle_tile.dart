@@ -16,9 +16,15 @@ class NotificationToggleTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
         backgroundColor: theme.colorScheme.surfaceContainerHigh,
-        child: const Icon(Icons.notifications_outlined, color: AppColors.background),
+        child: const Icon(
+          Icons.notifications_outlined,
+          color: AppColors.background,
+        ),
       ),
-      title: const Text('Notifications', style: TextStyle(fontWeight: FontWeight.w600)),
+      title: const Text(
+        'Notifications',
+        style: TextStyle(fontWeight: FontWeight.w600),
+      ),
       subtitle: const Text('Notification preferences'),
       trailing: Switch(
         value: prefs.preferences.notificationsEnabled,

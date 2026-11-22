@@ -29,16 +29,8 @@ class StatCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ),
-                Icon(
-                  icon,
-                  color: accentColor,
-                ),
+                Expanded(child: Text(title, style: theme.textTheme.bodyMedium)),
+                Icon(icon, color: accentColor),
               ],
             ),
             const SizedBox(height: 16),

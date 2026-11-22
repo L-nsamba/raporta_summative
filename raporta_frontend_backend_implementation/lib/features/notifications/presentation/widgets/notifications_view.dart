@@ -43,7 +43,11 @@ class NotificationsView extends StatelessWidget {
   ) {
     switch (destination) {
       case AppDrawerDestination.dashboard:
-        context.go(isOfficial ? RouteNames.officialDashboard : RouteNames.citizenDashboard);
+        context.go(
+          isOfficial
+              ? RouteNames.officialDashboard
+              : RouteNames.citizenDashboard,
+        );
       case AppDrawerDestination.exploreReports:
         context.go(RouteNames.reports);
       case AppDrawerDestination.createReport:
@@ -55,7 +59,11 @@ class NotificationsView extends StatelessWidget {
       case AppDrawerDestination.reportQueue:
         context.go(RouteNames.reportQueue);
       case AppDrawerDestination.notifications:
-        context.go(isOfficial ? RouteNames.officialNotifications : RouteNames.notifications);
+        context.go(
+          isOfficial
+              ? RouteNames.officialNotifications
+              : RouteNames.notifications,
+        );
       case AppDrawerDestination.profile:
         context.go(RouteNames.profile);
     }
@@ -88,9 +96,7 @@ class NotificationsView extends StatelessWidget {
         children: [
           Text(
             _unreadLabel(state.unreadCount),
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
+            style: Theme.of(context).textTheme.bodyMedium
                 ?.copyWith(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 16),
@@ -100,22 +106,25 @@ class NotificationsView extends StatelessWidget {
             ...todayItems.map(
               (notification) => NotificationTile(
                 notification: notification,
-                onTap: () => context
-                    .read<NotificationsBloc>()
-                    .add(NotificationMarkedRead(notification.notificationId)),
+                onTap: () => context.read<NotificationsBloc>().add(
+                  NotificationMarkedRead(notification.notificationId),
+                ),
               ),
             ),
           ],
           if (earlierItems.isNotEmpty) ...[
             if (todayItems.isNotEmpty) const SizedBox(height: 16),
-            const Text('Earlier', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Earlier',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             ...earlierItems.map(
               (notification) => NotificationTile(
                 notification: notification,
-                onTap: () => context
-                    .read<NotificationsBloc>()
-                    .add(NotificationMarkedRead(notification.notificationId)),
+                onTap: () => context.read<NotificationsBloc>().add(
+                  NotificationMarkedRead(notification.notificationId),
+                ),
               ),
             ),
           ],
@@ -147,19 +156,21 @@ class NotificationsView extends StatelessWidget {
       ),
       body: switch (notificationsState.status) {
         NotificationsStatus.initial ||
-        NotificationsStatus.loading =>
-          const LoadingIndicator(),
+        NotificationsStatus.loading => const LoadingIndicator(),
         NotificationsStatus.failure => EmptyState(
-            icon: Icons.error_outline,
-            title: 'Unable to load notifications',
-            message: notificationsState.errorMessage ?? 'Please try again.',
-            actionLabel: 'Retry',
-            onAction: () => context
-                .read<NotificationsBloc>()
-                .add(NotificationsStarted(user.userId)),
+          icon: Icons.error_outline,
+          title: 'Unable to load notifications',
+          message: notificationsState.errorMessage ?? 'Please try again.',
+          actionLabel: 'Retry',
+          onAction: () => context.read<NotificationsBloc>().add(
+            NotificationsStarted(user.userId),
           ),
-        NotificationsStatus.loaded =>
-          _buildLoaded(context, notificationsState, user.userId),
+        ),
+        NotificationsStatus.loaded => _buildLoaded(
+          context,
+          notificationsState,
+          user.userId,
+        ),
       },
     );
   }

@@ -62,7 +62,8 @@ class _LoginPageState extends State<LoginPage> {
             }
           },
           builder: (context, state) {
-            final isLoading = state.operationStatus == AuthOperationStatus.loading;
+            final isLoading =
+                state.operationStatus == AuthOperationStatus.loading;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -89,7 +90,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    const Text('Email Address', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Email Address',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     AppTextField(
                       label: '',
@@ -103,7 +107,10 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ),
                     const SizedBox(height: 20),
-                    const Text('Password', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Password',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     AppTextField(
                       label: '',

@@ -1,7 +1,7 @@
 class CloudinaryConfig {
   const CloudinaryConfig._();
 
-  static const String cloudName = 'kyazyt6i'; 
+  static const String cloudName = 'kyazyt6i';
 
   static const String uploadPreset = 'raporta_reports';
 

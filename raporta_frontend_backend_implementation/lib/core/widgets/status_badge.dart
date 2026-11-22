@@ -5,10 +5,7 @@ import '../enums/report_status.dart';
 class StatusBadge extends StatelessWidget {
   final ReportStatus status;
 
-  const StatusBadge({
-    super.key,
-    required this.status,
-  });
+  const StatusBadge({super.key, required this.status});
 
   Color _getColor() {
     switch (status) {
@@ -59,10 +56,7 @@ class StatusBadge extends StatelessWidget {
     final color = _getColor();
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
@@ -78,4 +72,3 @@ class StatusBadge extends StatelessWidget {
     );
   }
 }
-

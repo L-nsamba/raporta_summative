@@ -6,13 +6,7 @@ class UpdateReportStatus {
 
   UpdateReportStatus({required this.repository});
 
-  Future<void> call({
-    required String reportId,
-    required ReportStatus status,
-  }) {
-    return repository.updateReportStatus(
-      reportId: reportId,
-      status: status,
-    );
+  Future<void> call({required String reportId, required ReportStatus status}) {
+    return repository.updateReportStatus(reportId: reportId, status: status);
   }
 }

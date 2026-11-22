@@ -18,6 +18,10 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../widgets/decline_reason_dialog.dart';
 
 import '../../../../app/router/route_names.dart';
+import '../../../../core/widgets/app_drawer.dart';
+
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
 import '../widgets/pending_report_card.dart';
 
 import '../cubit/moderation_cubit.dart';
@@ -124,22 +128,53 @@ class ReportQueueView extends StatelessWidget {
     );
   }
 
+  void _navigateToDestination(
+    BuildContext context,
+    AppDrawerDestination destination,
+  ) {
+    final route = switch (destination) {
+      AppDrawerDestination.dashboard => RouteNames.officialDashboard,
+
+      AppDrawerDestination.reportQueue => RouteNames.reportQueue,
+
+      AppDrawerDestination.manageReports => RouteNames.assignedReports,
+
+      AppDrawerDestination.notifications => RouteNames.officialNotifications,
+
+      AppDrawerDestination.profile => RouteNames.profile,
+
+      // Citizen-only destinations.
+      AppDrawerDestination.exploreReports ||
+      AppDrawerDestination.createReport ||
+      AppDrawerDestination.myReports => null,
+    };
+
+    if (route != null) {
+      context.go(route);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthBloc>().state.user;
     return Scaffold(
+      drawer: user == null
+          ? null
+          : AppDrawer(
+              role: user.role,
+              userName: user.name,
+              userEmail: user.email,
+              selectedDestination: AppDrawerDestination.reportQueue,
+              onDestinationSelected: (destination) {
+                _navigateToDestination(context, destination);
+              },
+              onSignOut: () {
+                context.read<AuthBloc>().add(AuthLogoutRequested());
+              },
+            ),
+
       appBar: AppBar(
         title: const Text('Report Queue'),
-        leading: IconButton(
-          tooltip: 'Back to Dashboard',
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go(RouteNames.officialDashboard);
-            }
-          },
-        ),
         actions: [
           IconButton(
             tooltip: 'Refresh pending reports',

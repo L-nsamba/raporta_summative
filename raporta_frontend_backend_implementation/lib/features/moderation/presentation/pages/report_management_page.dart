@@ -17,6 +17,11 @@ import '../../../../core/enums/report_status.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
+import '../../../../core/widgets/app_drawer.dart';
+
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
+
 import '../widgets/approved_report_card.dart';
 
 class ReportManagementPage extends StatelessWidget {
@@ -297,25 +302,55 @@ class _ReportManagementViewState extends State<ReportManagementView> {
     }
   }
 
-  @override
+  void _navigateToDestination(
+    BuildContext context,
+    AppDrawerDestination destination,
+  ) {
+    final route = switch (destination) {
+      AppDrawerDestination.dashboard => RouteNames.officialDashboard,
+
+      AppDrawerDestination.reportQueue => RouteNames.reportQueue,
+
+      AppDrawerDestination.manageReports => RouteNames.assignedReports,
+
+      AppDrawerDestination.notifications => RouteNames.officialNotifications,
+
+      AppDrawerDestination.profile => RouteNames.profile,
+
+      // Citizen-only destinations.
+      AppDrawerDestination.exploreReports ||
+      AppDrawerDestination.createReport ||
+      AppDrawerDestination.myReports => null,
+    };
+
+    if (route != null) {
+      context.go(route);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final user = context.watch<AuthBloc>().state.user;
 
     return Scaffold(
+      drawer: user == null
+          ? null
+          : AppDrawer(
+              role: user.role,
+              userName: user.name,
+              userEmail: user.email,
+              selectedDestination: AppDrawerDestination.manageReports,
+              onDestinationSelected: (destination) {
+                _navigateToDestination(context, destination);
+              },
+              onSignOut: () {
+                context.read<AuthBloc>().add(AuthLogoutRequested());
+              },
+            ),
+
       appBar: AppBar(
         title: const Text('Manage Reports'),
-        leading: IconButton(
-          tooltip: 'Back to Dashboard',
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go(RouteNames.officialDashboard);
-            }
-          },
-        ),
         actions: [
           IconButton(
             tooltip: 'Refresh approved reports',
