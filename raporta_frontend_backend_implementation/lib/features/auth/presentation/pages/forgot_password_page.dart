@@ -20,6 +20,7 @@ class ForgotPasswordPage extends StatefulWidget {
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  bool _resetEmailSent = false;
 
   @override
   void dispose() {
@@ -60,7 +61,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               );
             }
             if (state.operationStatus == AuthOperationStatus.success &&
-                state.successMessage != null) {
+                state.successMessage == 'Password reset email sent.') {
+              setState(() => _resetEmailSent = true);
               AppSnackbar.show(
                 context,
                 message: state.successMessage!,
@@ -70,7 +72,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           },
           builder: (context, state) {
             final isLoading = state.operationStatus == AuthOperationStatus.loading;
-            final sent = state.operationStatus == AuthOperationStatus.success;
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -96,7 +97,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     style: TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 24),
-                  if (!sent) ...[
+                  if (!_resetEmailSent) ...[
                     Form(
                       key: _formKey,
                       child: AppTextField(

@@ -15,6 +15,7 @@ import '../../../auth/presentation/bloc/auth_event.dart';
 import '../widgets/notification_toggle_tile.dart';
 import '../widgets/theme_toggle_tile.dart';
 import 'edit_account_page.dart';
+import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -75,6 +76,7 @@ class _ProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.watch<AuthBloc>().state.user;
     final areasState = context.watch<AreasCubit>().state;
+    final notificationsState = context.watch<NotificationsBloc>().state;
 
     if (user == null) {
       return const Scaffold(body: SizedBox.shrink());
@@ -89,6 +91,7 @@ class _ProfileView extends StatelessWidget {
         userName: user.name,
         userEmail: user.email,
         selectedDestination: AppDrawerDestination.profile,
+        unreadNotificationsCount: notificationsState.unreadCount,
         onDestinationSelected: (destination) =>
             _onDrawerDestinationSelected(context, destination, isOfficial),
         onSignOut: () => context.read<AuthBloc>().add(AuthLogoutRequested()),
