@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../features/notifications/presentation/bloc/notifications_bloc.dart';
 import '../enums/user_role.dart';
 import '../theme/app_colors.dart';
 
@@ -89,6 +91,10 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final unreadCount = unreadNotificationsCount ??
+        context.select<NotificationsBloc?, int>(
+          (bloc) => bloc?.state.unreadCount ?? 0,
+        );
     final visibleDestinations = _destinations.where((destination) {
       return enabledDestinations == null ||
           enabledDestinations!.contains(destination);
@@ -128,8 +134,7 @@ class AppDrawer extends StatelessWidget {
                       title: Text(_label(destination)),
                       trailing:
                           destination == AppDrawerDestination.notifications &&
-                              unreadNotificationsCount != null &&
-                              unreadNotificationsCount! > 0
+                              unreadCount > 0
                           ? Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -140,7 +145,7 @@ class AppDrawer extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                '$unreadNotificationsCount',
+                                '$unreadCount',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
