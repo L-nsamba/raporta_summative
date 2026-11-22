@@ -4,6 +4,7 @@ import 'package:raporta_frontend_backend_implementation/core/enums/report_catego
 import 'package:raporta_frontend_backend_implementation/core/enums/report_status.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/entities/report.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/entities/upvotes.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/delete_report.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_report_by_id.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/get_upvote.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/toggle_upvote.dart';
@@ -19,9 +20,9 @@ void main() {
   const userId = 'user_123';
   const reportId = 'report_123';
 
-  final sampleReport = Report(
+  final pendingReport = Report(
     reportId: reportId,
-    userId: 'another_user',
+    userId: userId,
     areaId: 'kimironko',
     category: ReportCategory.roads,
     description: 'Damaged road near the library',
@@ -33,6 +34,20 @@ void main() {
     updatedAt: DateTime(2026, 11, 8),
   );
 
+  final publicReport = Report(
+    reportId: reportId,
+    userId: 'another_user',
+    areaId: 'kimironko',
+    category: ReportCategory.roads,
+    description: 'Damaged road near the library',
+    lat: -1.9441,
+    lng: 30.0619,
+    locationDescription: 'Near the main library',
+    status: ReportStatus.underReview,
+    createdAt: DateTime(2026, 11, 8),
+    updatedAt: DateTime(2026, 11, 8),
+  );
+
   setUp(() {
     fakeRepository = FakeReportsRepository();
 
@@ -40,6 +55,7 @@ void main() {
       getReportById: GetReportById(repository: fakeRepository),
       getUpvotes: GetUpvotes(repository: fakeRepository),
       toggleUpvote: ToggleUpvote(repository: fakeRepository),
+      deleteReport: DeleteReport(repository: fakeRepository),
     );
   });
 
@@ -55,12 +71,12 @@ void main() {
   });
 
   test('loads report details successfully', () async {
-    fakeRepository.reportToReturn = sampleReport;
+    fakeRepository.reportToReturn = publicReport;
 
     await cubit.loadReportDetails(reportId: reportId, userId: userId);
 
     expect(cubit.state.status, ReportDetailsStatus.loaded);
-    expect(cubit.state.report, sampleReport);
+    expect(cubit.state.report, publicReport);
   });
 
   test('emits notFound when report does not exist', () async {
@@ -102,7 +118,7 @@ void main() {
   });
 
   test('loads upvotes and detects current user upvote', () async {
-    fakeRepository.reportToReturn = sampleReport;
+    fakeRepository.reportToReturn = publicReport;
     fakeRepository.upvotes = [
       Upvote(userId: userId, createdAt: DateTime(2026, 11, 8)),
     ];
@@ -114,7 +130,7 @@ void main() {
   });
 
   test('successfully adds an upvote', () async {
-    fakeRepository.reportToReturn = sampleReport;
+    fakeRepository.reportToReturn = publicReport;
 
     await cubit.loadReportDetails(reportId: reportId, userId: userId);
 
@@ -124,9 +140,8 @@ void main() {
     expect(cubit.state.hasUpvoted, true);
     expect(cubit.state.isUpvoting, false);
   });
-
   test('successfully removes an existing upvote', () async {
-    fakeRepository.reportToReturn = sampleReport;
+    fakeRepository.reportToReturn = publicReport;
     fakeRepository.upvotes = [
       Upvote(userId: userId, createdAt: DateTime(2026, 11, 8)),
     ];
@@ -140,7 +155,7 @@ void main() {
   });
 
   test('handles failed upvote interaction', () async {
-    fakeRepository.reportToReturn = sampleReport;
+    fakeRepository.reportToReturn = publicReport;
 
     await cubit.loadReportDetails(reportId: reportId, userId: userId);
 
@@ -153,7 +168,7 @@ void main() {
   });
 
   test('resets report details state', () async {
-    fakeRepository.reportToReturn = sampleReport;
+    fakeRepository.reportToReturn = publicReport;
 
     await cubit.loadReportDetails(reportId: reportId, userId: userId);
 
@@ -162,5 +177,86 @@ void main() {
     expect(cubit.state.status, ReportDetailsStatus.initial);
     expect(cubit.state.report, null);
     expect(cubit.state.upvotes, isEmpty);
+  });
+
+  test('successfully deletes an owned pending report', () async {
+    fakeRepository.reportToReturn = pendingReport;
+
+    await cubit.loadReportDetails(reportId: reportId, userId: userId);
+
+    final success = await cubit.deleteCurrentReport(userId: userId);
+
+    expect(success, true);
+    expect(fakeRepository.deletedReportId, reportId);
+    expect(cubit.state.isDeleting, false);
+    expect(cubit.state.deletionSucceeded, true);
+    expect(cubit.state.errorMessage, isNull);
+  });
+
+  test('does not delete another users report', () async {
+    fakeRepository.reportToReturn = publicReport;
+
+    await cubit.loadReportDetails(reportId: reportId, userId: userId);
+
+    final success = await cubit.deleteCurrentReport(userId: userId);
+
+    expect(success, false);
+    expect(fakeRepository.deletedReportId, isNull);
+    expect(cubit.state.deletionSucceeded, false);
+  });
+
+  test('does not delete an approved report', () async {
+    final approvedReport = Report(
+      reportId: reportId,
+      userId: userId,
+      areaId: 'kimironko',
+      category: ReportCategory.roads,
+      description: 'Damaged road near the library',
+      lat: -1.9441,
+      lng: 30.0619,
+      locationDescription: 'Near the main library',
+      status: ReportStatus.underReview,
+      createdAt: DateTime(2026, 11, 8),
+      updatedAt: DateTime(2026, 11, 8),
+    );
+
+    fakeRepository.reportToReturn = approvedReport;
+
+    await cubit.loadReportDetails(reportId: reportId, userId: userId);
+
+    final success = await cubit.deleteCurrentReport(userId: userId);
+
+    expect(success, false);
+    expect(fakeRepository.deletedReportId, isNull);
+    expect(cubit.state.deletionSucceeded, false);
+  });
+
+  test('handles failed deletion gracefully', () async {
+    fakeRepository.reportToReturn = pendingReport;
+    fakeRepository.shouldThrowDeleteReportError = true;
+
+    await cubit.loadReportDetails(reportId: reportId, userId: userId);
+
+    final success = await cubit.deleteCurrentReport(userId: userId);
+
+    expect(success, false);
+    expect(cubit.state.isDeleting, false);
+    expect(cubit.state.deletionSucceeded, false);
+    expect(cubit.state.errorMessage, isNotNull);
+    expect(fakeRepository.deletedReportId, isNull);
+  });
+
+  test('prevents deleting a report twice', () async {
+    fakeRepository.reportToReturn = pendingReport;
+
+    await cubit.loadReportDetails(reportId: reportId, userId: userId);
+
+    final firstAttempt = await cubit.deleteCurrentReport(userId: userId);
+
+    final secondAttempt = await cubit.deleteCurrentReport(userId: userId);
+
+    expect(firstAttempt, true);
+    expect(secondAttempt, false);
+    expect(cubit.state.deletionSucceeded, true);
   });
 }

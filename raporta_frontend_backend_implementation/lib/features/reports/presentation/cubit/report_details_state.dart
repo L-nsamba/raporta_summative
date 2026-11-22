@@ -3,13 +3,7 @@ import 'package:equatable/equatable.dart';
 import '../../domain/entities/report.dart';
 import '../../domain/entities/upvotes.dart';
 
-enum ReportDetailsStatus {
-  initial,
-  loading,
-  loaded,
-  notFound,
-  failure,
-}
+enum ReportDetailsStatus { initial, loading, loaded, notFound, failure }
 
 class ReportDetailsState extends Equatable {
   final ReportDetailsStatus status;
@@ -22,12 +16,17 @@ class ReportDetailsState extends Equatable {
 
   final String? errorMessage;
 
+  final bool isDeleting;
+  final bool deletionSucceeded;
+
   const ReportDetailsState({
     this.status = ReportDetailsStatus.initial,
     this.report,
     this.upvotes = const [],
     this.isUpvoting = false,
     this.hasUpvoted = false,
+    this.isDeleting = false,
+    this.deletionSucceeded = false,
     this.errorMessage,
   });
 
@@ -37,6 +36,8 @@ class ReportDetailsState extends Equatable {
     List<Upvote>? upvotes,
     bool? isUpvoting,
     bool? hasUpvoted,
+    bool? isDeleting,
+    bool? deletionSucceeded,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -46,17 +47,21 @@ class ReportDetailsState extends Equatable {
       upvotes: upvotes ?? this.upvotes,
       isUpvoting: isUpvoting ?? this.isUpvoting,
       hasUpvoted: hasUpvoted ?? this.hasUpvoted,
+      isDeleting: isDeleting ?? this.isDeleting,
+      deletionSucceeded: deletionSucceeded ?? this.deletionSucceeded,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
-        status,
-        report,
-        upvotes,
-        isUpvoting,
-        hasUpvoted,
-        errorMessage,
-      ];
+    status,
+    report,
+    upvotes,
+    isUpvoting,
+    hasUpvoted,
+    isDeleting,
+    deletionSucceeded,
+    errorMessage,
+  ];
 }
