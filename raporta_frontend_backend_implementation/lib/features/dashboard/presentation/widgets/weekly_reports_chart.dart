@@ -1,4 +1,3 @@
-
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
@@ -9,10 +8,7 @@ import '../../domain/entities/daily_report_count.dart';
 class WeeklyReportsChart extends StatelessWidget {
   final List<DailyReportCount> weeklyReports;
 
-  const WeeklyReportsChart({
-    super.key,
-    required this.weeklyReports,
-  });
+  const WeeklyReportsChart({super.key, required this.weeklyReports});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +20,7 @@ class WeeklyReportsChart extends StatelessWidget {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(24),
-          child: Center(
-            child: Text('No weekly report data available.'),
-          ),
+          child: Center(child: Text('No weekly report data available.')),
         ),
       );
     }
@@ -47,15 +41,7 @@ class WeeklyReportsChart extends StatelessWidget {
 
     final yInterval = math.max(1, (maxY / 4).ceil()).toDouble();
 
-    const weekdayLabels = [
-      'Mon',
-      'Tue',
-      'Wed',
-      'Thu',
-      'Fri',
-      'Sat',
-      'Sun',
-    ];
+    const weekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     return Card(
       child: Padding(
@@ -63,10 +49,7 @@ class WeeklyReportsChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Weekly Reports',
-              style: theme.textTheme.titleLarge,
-            ),
+            Text('Weekly Reports', style: theme.textTheme.titleLarge),
             const SizedBox(height: 4),
             Text(
               'Reports submitted this week',
@@ -81,10 +64,7 @@ class WeeklyReportsChart extends StatelessWidget {
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
-                    width: math.max(
-                      constraints.maxWidth,
-                      320.0,
-                    ),
+                    width: math.max(constraints.maxWidth, 320.0),
                     height: 230,
                     child: BarChart(
                       BarChartData(
@@ -99,21 +79,15 @@ class WeeklyReportsChart extends StatelessWidget {
                           horizontalInterval: yInterval,
                         ),
 
-                        borderData: FlBorderData(
-                          show: false,
-                        ),
+                        borderData: FlBorderData(show: false),
 
                         // Axis labels.
                         titlesData: FlTitlesData(
                           topTitles: const AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: false,
-                            ),
+                            sideTitles: SideTitles(showTitles: false),
                           ),
                           rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: false,
-                            ),
+                            sideTitles: SideTitles(showTitles: false),
                           ),
                           leftTitles: AxisTitles(
                             sideTitles: SideTitles(
@@ -135,8 +109,7 @@ class WeeklyReportsChart extends StatelessWidget {
                                   return const SizedBox.shrink();
                                 }
 
-                                final weekday =
-                                    reports[index].date.weekday;
+                                final weekday = reports[index].date.weekday;
 
                                 return SideTitleWidget(
                                   meta: meta,
@@ -151,27 +124,23 @@ class WeeklyReportsChart extends StatelessWidget {
                         ),
 
                         // Generate one bar per day using actual data.
-                        barGroups: List.generate(
-                          reports.length,
-                          (index) {
-                            final day = reports[index];
+                        barGroups: List.generate(reports.length, (index) {
+                          final day = reports[index];
 
-                            return BarChartGroupData(
-                              x: index,
-                              barRods: [
-                                BarChartRodData(
-                                  toY: day.count.toDouble(),
-                                  width: 18,
-                                  color: colorScheme.primary,
-                                  borderRadius:
-                                      const BorderRadius.vertical(
-                                    top: Radius.circular(5),
-                                  ),
+                          return BarChartGroupData(
+                            x: index,
+                            barRods: [
+                              BarChartRodData(
+                                toY: day.count.toDouble(),
+                                width: 18,
+                                color: colorScheme.primary,
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(5),
                                 ),
-                              ],
-                            );
-                          },
-                        ),
+                              ),
+                            ],
+                          );
+                        }),
                       ),
                     ),
                   ),

@@ -71,7 +71,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             }
           },
           builder: (context, state) {
-            final isLoading = state.operationStatus == AuthOperationStatus.loading;
+            final isLoading =
+                state.operationStatus == AuthOperationStatus.loading;
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -108,7 +109,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         validator: (value) {
                           final email = value?.trim() ?? '';
                           if (email.isEmpty) return 'Please enter your email.';
-                          final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                          final emailRegex = RegExp(
+                            r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                          );
                           if (!emailRegex.hasMatch(email)) {
                             return 'Please enter a valid email address.';
                           }

@@ -7,9 +7,6 @@ class SignInWithEmail {
   SignInWithEmail(this.repository);
 
   Future<AppUser> call({required String email, required String password}) {
-    return repository.signInWithEmail(
-      email: email,
-      password: password
-    );
+    return repository.signInWithEmail(email: email, password: password);
   }
 }

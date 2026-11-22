@@ -70,11 +70,13 @@ class ExploreReportsMap extends StatelessWidget {
             ],
           ),
 
-          const RichAttributionWidget(attributions: [
-            TextSourceAttribution('Stadia Maps'),
-            TextSourceAttribution('OpenMapTiles'),
-            TextSourceAttribution('OpenStreetMap contributors')
-          ])
+          const RichAttributionWidget(
+            attributions: [
+              TextSourceAttribution('Stadia Maps'),
+              TextSourceAttribution('OpenMapTiles'),
+              TextSourceAttribution('OpenStreetMap contributors'),
+            ],
+          ),
         ],
       ),
     );

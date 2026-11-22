@@ -16,7 +16,7 @@ class RegisterWithEmail {
       name: name,
       email: email,
       password: password,
-      areaId: areaId
+      areaId: areaId,
     );
   }
 }

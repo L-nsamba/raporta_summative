@@ -6,7 +6,8 @@ class UpvoteSection extends StatelessWidget {
   final bool isUpvoting;
   final VoidCallback onPressed;
 
-  const UpvoteSection({super.key, 
+  const UpvoteSection({
+    super.key,
     required this.upvoteCount,
     required this.hasUpvoted,
     required this.isUpvoting,

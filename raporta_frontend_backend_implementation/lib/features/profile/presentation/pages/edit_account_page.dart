@@ -112,7 +112,8 @@ class _EditAccountCardState extends State<_EditAccountCard> {
           }
         },
         builder: (context, state) {
-          final isLoading = state.operationStatus == AuthOperationStatus.loading;
+          final isLoading =
+              state.operationStatus == AuthOperationStatus.loading;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -127,7 +128,10 @@ class _EditAccountCardState extends State<_EditAccountCard> {
                       const Expanded(
                         child: Text(
                           'My Account Editing',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                       IconButton(
@@ -138,7 +142,10 @@ class _EditAccountCardState extends State<_EditAccountCard> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text('Name', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const Text(
+                    'Name',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: 8),
                   AppTextField(
                     label: '',
@@ -152,7 +159,10 @@ class _EditAccountCardState extends State<_EditAccountCard> {
                   ),
                   if (!isOfficial) ...[
                     const SizedBox(height: 20),
-                    const Text('Area', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Area',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     BlocBuilder<AreasCubit, AreasState>(
                       builder: (context, areasState) {
@@ -165,7 +175,9 @@ class _EditAccountCardState extends State<_EditAccountCard> {
                               child: SizedBox(
                                 height: 20,
                                 width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               ),
                             ),
                           );
@@ -180,7 +192,9 @@ class _EditAccountCardState extends State<_EditAccountCard> {
                         }
 
                         if (areasState.areas.isEmpty) {
-                          return const Text('No areas are available right now.');
+                          return const Text(
+                            'No areas are available right now.',
+                          );
                         }
 
                         return DropdownButtonFormField<String>(

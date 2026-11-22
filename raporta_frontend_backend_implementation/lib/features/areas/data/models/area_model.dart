@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:raporta_frontend_backend_implementation/features/areas/domain/entities/area.dart';
 
-
 class AreaModel extends Area {
   const AreaModel({
     required super.areaId,

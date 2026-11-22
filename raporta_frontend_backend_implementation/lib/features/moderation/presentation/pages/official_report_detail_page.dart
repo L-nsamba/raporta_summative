@@ -209,155 +209,150 @@ class OfficialReportDetailView extends StatelessWidget {
     detailsCubit.refreshReportDetails(reportId: reportId, userId: userId);
   }
 
-  
-@override
-Widget build(BuildContext context) {
-  return BlocBuilder<ModerationCubit, ModerationState>(
-    builder: (context, moderationState) {
-      final isSubmitting =
-          moderationState.status == ModerationStatus.submitting;
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ModerationCubit, ModerationState>(
+      builder: (context, moderationState) {
+        final isSubmitting =
+            moderationState.status == ModerationStatus.submitting;
 
-      return PopScope(
-        canPop: !isSubmitting,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Report Details'),
-            leading: IconButton(
-              tooltip: 'Back',
-              icon: const Icon(Icons.arrow_back),
-              onPressed: isSubmitting ? null : () => _goBack(context),
+        return PopScope(
+          canPop: !isSubmitting,
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text('Report Details'),
+              leading: IconButton(
+                tooltip: 'Back',
+                icon: const Icon(Icons.arrow_back),
+                onPressed: isSubmitting ? null : () => _goBack(context),
+              ),
+            ),
+
+            body: BlocBuilder<ReportDetailsCubit, ReportDetailsState>(
+              builder: (context, state) {
+                switch (state.status) {
+                  case ReportDetailsStatus.initial:
+                  case ReportDetailsStatus.loading:
+                    return const LoadingIndicator(
+                      message: 'Loading report details...',
+                    );
+
+                  case ReportDetailsStatus.notFound:
+                    return const EmptyState(
+                      icon: Icons.search_off_outlined,
+                      title: 'Report not found',
+                      message: 'This report may have been deleted or is unavailable.',
+                    );
+
+                  case ReportDetailsStatus.failure:
+                    return EmptyState(
+                      icon: Icons.error_outline,
+                      title: 'Unable to load report',
+                      message:
+                          state.errorMessage ??
+                          'Something went wrong. Please try again.',
+                      actionLabel: 'Retry',
+                      onAction: () {
+                        context.read<ReportDetailsCubit>().loadReportDetails(
+                          reportId: reportId,
+                          userId: userId,
+                        );
+                      },
+                    );
+
+                  case ReportDetailsStatus.loaded:
+                    final report = state.report;
+
+                    // Handle a missing report safely.
+                    if (report == null) {
+                      return const EmptyState(
+                        icon: Icons.info_outline,
+                        title: 'Report unavailable',
+                        message:
+                            'The report information could not be displayed.',
+                      );
+                    }
+
+                    return BlocBuilder<AreasCubit, AreasState>(
+                      builder: (context, areasState) {
+                        final areaName = _resolveAreaName(
+                          areasState,
+                          report.areaId,
+                        );
+
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Stage 2: Report information
+                              ReportInformationSection(
+                                report: report,
+                                areaName: areaName,
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Stage 3: Report progress timeline
+                              ReportProgressTimeline(report: report),
+
+                              const SizedBox(height: 24),
+
+                              // Stage 4: Moderation action buttons
+                              ModerationActionButtons(
+                                status: report.status,
+                                isSubmitting: isSubmitting,
+
+                                // PENDING -> UNDER REVIEW
+                                onApprove: () {
+                                  _showApprovalDialog(context);
+                                },
+
+                                // Nonterminal status -> DECLINED
+                                onDecline: () {
+                                  _showDeclineDialog(context);
+                                },
+
+                                // UNDER REVIEW -> FORWARDED
+                                onForward: () {
+                                  _showForwardAgencyDialog(context);
+                                },
+
+                                // FORWARDED -> IN PROGRESS
+                                onMarkInProgress: () {
+                                  _showStatusUpdateDialog(
+                                    context,
+                                    targetStatus: ReportStatus.inProgress,
+                                    title: 'Mark In Progress',
+                                    message: 'Are you sure you want to mark this report as In Progress?',
+                                    confirmLabel: 'Confirm',
+                                  );
+                                },
+
+                                // IN PROGRESS -> RESOLVED
+                                onMarkResolved: () {
+                                  _showStatusUpdateDialog(
+                                    context,
+                                    targetStatus: ReportStatus.resolved,
+                                    title: 'Mark Resolved',
+                                    message: 'Are you sure this issue has been resolved?',
+                                    confirmLabel: 'Mark Resolved',
+                                  );
+                                },
+                              ),
+
+                              const SizedBox(height: 24),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                }
+              },
             ),
           ),
-
-          body: BlocBuilder<ReportDetailsCubit, ReportDetailsState>(
-            builder: (context, state) {
-              switch (state.status) {
-                case ReportDetailsStatus.initial:
-                case ReportDetailsStatus.loading:
-                  return const LoadingIndicator(
-                    message: 'Loading report details...',
-                  );
-
-                case ReportDetailsStatus.notFound:
-                  return const EmptyState(
-                    icon: Icons.search_off_outlined,
-                    title: 'Report not found',
-                    message: 'This report may have been deleted or is unavailable.',
-                  );
-
-                case ReportDetailsStatus.failure:
-                  return EmptyState(
-                    icon: Icons.error_outline,
-                    title: 'Unable to load report',
-                    message:
-                        state.errorMessage ??
-                        'Something went wrong. Please try again.',
-                    actionLabel: 'Retry',
-                    onAction: () {
-                      context.read<ReportDetailsCubit>().loadReportDetails(
-                        reportId: reportId,
-                        userId: userId,
-                      );
-                    },
-                  );
-
-                case ReportDetailsStatus.loaded:
-                  final report = state.report;
-
-                  // Handle a missing report safely.
-                  if (report == null) {
-                    return const EmptyState(
-                      icon: Icons.info_outline,
-                      title: 'Report unavailable',
-                      message:
-                          'The report information could not be displayed.',
-                    );
-                  }
-
-                  return BlocBuilder<AreasCubit, AreasState>(
-                    builder: (context, areasState) {
-                      final areaName = _resolveAreaName(
-                        areasState,
-                        report.areaId,
-                      );
-
-                      return SingleChildScrollView(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Stage 2: Report information
-                            ReportInformationSection(
-                              report: report,
-                              areaName: areaName,
-                            ),
-
-                            const SizedBox(height: 24),
-
-                            // Stage 3: Report progress timeline
-                            ReportProgressTimeline(
-                              report: report,
-                            ),
-
-                            const SizedBox(height: 24),
-
-                            // Stage 4: Moderation action buttons
-                            ModerationActionButtons(
-                              status: report.status,
-                              isSubmitting: isSubmitting,
-
-                              // PENDING -> UNDER REVIEW
-                              onApprove: () {
-                                _showApprovalDialog(context);
-                              },
-
-                              // Nonterminal status -> DECLINED
-                              onDecline: () {
-                                _showDeclineDialog(context);
-                              },
-
-                              // UNDER REVIEW -> FORWARDED
-                              onForward: () {
-                                _showForwardAgencyDialog(context);
-                              },
-
-                              // FORWARDED -> IN PROGRESS
-                              onMarkInProgress: () {
-                                _showStatusUpdateDialog(
-                                  context,
-                                  targetStatus: ReportStatus.inProgress,
-                                  title: 'Mark In Progress',
-                                  message:
-                                      'Are you sure you want to mark this report as In Progress?',
-                                  confirmLabel: 'Confirm',
-                                );
-                              },
-
-                              // IN PROGRESS -> RESOLVED
-                              onMarkResolved: () {
-                                _showStatusUpdateDialog(
-                                  context,
-                                  targetStatus: ReportStatus.resolved,
-                                  title: 'Mark Resolved',
-                                  message:
-                                      'Are you sure this issue has been resolved?',
-                                  confirmLabel: 'Mark Resolved',
-                                );
-                              },
-                            ),
-
-                            const SizedBox(height: 24),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-              }
-            },
-          ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 }

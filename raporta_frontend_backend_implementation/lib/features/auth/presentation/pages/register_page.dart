@@ -85,9 +85,10 @@ class _RegisterViewState extends State<_RegisterView> {
       body: SafeArea(
         child: BlocConsumer<AuthBloc, AuthState>(
           listenWhen: (previous, current) =>
-            previous.operationStatus != current.operationStatus,
+              previous.operationStatus != current.operationStatus,
           listener: (context, state) {
-            if (state.operationStatus == AuthOperationStatus.failure && state.errorMessage != null) {
+            if (state.operationStatus == AuthOperationStatus.failure &&
+                state.errorMessage != null) {
               AppSnackbar.show(
                 context,
                 message: state.errorMessage!,
@@ -96,7 +97,8 @@ class _RegisterViewState extends State<_RegisterView> {
             }
           },
           builder: (context, state) {
-            final isLoading = state.operationStatus == AuthOperationStatus.loading;
+            final isLoading =
+                state.operationStatus == AuthOperationStatus.loading;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -115,7 +117,10 @@ class _RegisterViewState extends State<_RegisterView> {
                     ),
 
                     const SizedBox(height: 32),
-                    const Text('Name', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Name',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     AppTextField(
                       label: '',
@@ -130,7 +135,10 @@ class _RegisterViewState extends State<_RegisterView> {
                     ),
 
                     const SizedBox(height: 20),
-                    const Text('Email Address', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Email Address',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     AppTextField(
                       label: '',
@@ -140,11 +148,13 @@ class _RegisterViewState extends State<_RegisterView> {
                       prefixIcon: const Icon(Icons.email_outlined),
                       validator: (value) {
                         final email = value?.trim() ?? '';
-                        
+
                         if (email.isEmpty) {
                           return 'Please enter your email.';
                         }
-                        final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                        final emailRegex = RegExp(
+                          r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                        );
 
                         if (!emailRegex.hasMatch(email)) {
                           return 'Please enter a valid email address.';
@@ -154,7 +164,10 @@ class _RegisterViewState extends State<_RegisterView> {
                     ),
 
                     const SizedBox(height: 20),
-                    const Text('Password', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Password',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     AppTextField(
                       label: '',
@@ -163,8 +176,8 @@ class _RegisterViewState extends State<_RegisterView> {
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                         ),
                         onPressed: () => setState(
                           () => _obscurePassword = !_obscurePassword,
@@ -180,7 +193,10 @@ class _RegisterViewState extends State<_RegisterView> {
                     ),
 
                     const SizedBox(height: 20),
-                    const Text('Confirm Password', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Confirm Password',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     AppTextField(
                       label: '',
@@ -189,11 +205,12 @@ class _RegisterViewState extends State<_RegisterView> {
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureConfirmPassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                         ),
                         onPressed: () => setState(
-                          () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                          () => _obscureConfirmPassword =
+                              !_obscureConfirmPassword,
                         ),
                       ),
                       validator: (value) {
@@ -205,11 +222,15 @@ class _RegisterViewState extends State<_RegisterView> {
                     ),
 
                     const SizedBox(height: 20),
-                    const Text('Area', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Area',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
-                    BlocBuilder<AreasCubit, AreasState> (
+                    BlocBuilder<AreasCubit, AreasState>(
                       builder: (context, areasState) {
-                        if (areasState.status == AreasStatus.loading || areasState.status == AreasStatus.initial) {
+                        if (areasState.status == AreasStatus.loading ||
+                            areasState.status == AreasStatus.initial) {
                           return const Align(
                             alignment: Alignment.centerLeft,
                             child: Padding(
@@ -217,7 +238,9 @@ class _RegisterViewState extends State<_RegisterView> {
                               child: SizedBox(
                                 height: 20,
                                 width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               ),
                             ),
                           );
@@ -225,13 +248,16 @@ class _RegisterViewState extends State<_RegisterView> {
 
                         if (areasState.status == AreasStatus.failure) {
                           return Text(
-                            areasState.errorMessage ?? 'Unable to load areas. Please try again.',
+                            areasState.errorMessage ??
+                                'Unable to load areas. Please try again.',
                             style: const TextStyle(color: AppColors.error),
                           );
                         }
 
                         if (areasState.areas.isEmpty) {
-                          return const Text('No areas are available right now.');
+                          return const Text(
+                            'No areas are available right now.',
+                          );
                         }
 
                         return DropdownButtonFormField<String>(
@@ -243,14 +269,15 @@ class _RegisterViewState extends State<_RegisterView> {
                             ),
                           ),
                           items: areasState.areas
-                            .map(
-                              (area) => DropdownMenuItem(
-                                value: area.areaId,
-                                child: Text(area.name),
-                              ),
-                            )
-                            .toList(),
-                          onChanged: (value) => setState(() => _selectedAreaId = value),
+                              .map(
+                                (area) => DropdownMenuItem(
+                                  value: area.areaId,
+                                  child: Text(area.name),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) =>
+                              setState(() => _selectedAreaId = value),
                         );
                       },
                     ),

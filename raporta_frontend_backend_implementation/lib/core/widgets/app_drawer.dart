@@ -40,26 +40,26 @@ class AppDrawer extends StatelessWidget {
     this.unreadNotificationsCount,
   });
 
-List<AppDrawerDestination> get _destinations {
-  if (role == UserRole.official) {
+  List<AppDrawerDestination> get _destinations {
+    if (role == UserRole.official) {
+      return const [
+        AppDrawerDestination.dashboard,
+        AppDrawerDestination.reportQueue,
+        AppDrawerDestination.manageReports,
+        AppDrawerDestination.notifications,
+        AppDrawerDestination.profile,
+      ];
+    }
+
     return const [
       AppDrawerDestination.dashboard,
-      AppDrawerDestination.reportQueue,
-      AppDrawerDestination.manageReports,
+      AppDrawerDestination.exploreReports,
+      AppDrawerDestination.createReport,
+      AppDrawerDestination.myReports,
       AppDrawerDestination.notifications,
       AppDrawerDestination.profile,
     ];
   }
-
-  return const [
-    AppDrawerDestination.dashboard,
-    AppDrawerDestination.exploreReports,
-    AppDrawerDestination.createReport,
-    AppDrawerDestination.myReports,
-    AppDrawerDestination.notifications,
-    AppDrawerDestination.profile,
-  ];
-}
 
   String _label(AppDrawerDestination destination) {
     return switch (destination) {
@@ -126,21 +126,28 @@ List<AppDrawerDestination> get _destinations {
                     ListTile(
                       leading: Icon(_icon(destination)),
                       title: Text(_label(destination)),
-                      trailing: destination == AppDrawerDestination.notifications &&
-                          unreadNotificationsCount != null &&
-                          unreadNotificationsCount! > 0
-                        ? Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '$unreadNotificationsCount',
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
-                          ),
-                        )
-                        : null,
+                      trailing:
+                          destination == AppDrawerDestination.notifications &&
+                              unreadNotificationsCount != null &&
+                              unreadNotificationsCount! > 0
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.redAccent,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '$unreadNotificationsCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            )
+                          : null,
                       selected: selectedDestination == destination,
                       onTap: () {
                         Navigator.of(context).pop();
@@ -169,4 +176,3 @@ List<AppDrawerDestination> get _destinations {
     );
   }
 }
-

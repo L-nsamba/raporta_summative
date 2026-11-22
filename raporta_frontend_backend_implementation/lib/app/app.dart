@@ -26,9 +26,7 @@ class RaportaApp extends StatelessWidget {
           create: (_) => sl<PreferencesCubit>()..loadPreferences(),
         ),
 
-        BlocProvider<NotificationsBloc>(
-          create: (_) => sl<NotificationsBloc>(),
-        ),
+        BlocProvider<NotificationsBloc>(create: (_) => sl<NotificationsBloc>()),
       ],
 
       child: MultiBlocListener(
@@ -41,7 +39,9 @@ class RaportaApp extends StatelessWidget {
             listener: (context, state) {
               final userId = state.user?.userId;
               if (userId != null) {
-                context.read<NotificationsBloc>().add(NotificationsStarted(userId));
+                context.read<NotificationsBloc>().add(
+                  NotificationsStarted(userId),
+                );
               }
             },
           ),

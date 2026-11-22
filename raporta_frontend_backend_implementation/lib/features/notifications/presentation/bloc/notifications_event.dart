@@ -25,4 +25,3 @@ class NotificationMarkedRead extends NotificationsEvent {
 class NotificationsStopped extends NotificationsEvent {
   const NotificationsStopped();
 }
-

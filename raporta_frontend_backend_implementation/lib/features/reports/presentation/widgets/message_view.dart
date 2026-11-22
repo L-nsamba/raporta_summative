@@ -6,7 +6,8 @@ class MessageView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const MessageView({super.key, 
+  const MessageView({
+    super.key,
     required this.icon,
     required this.title,
     required this.message,
