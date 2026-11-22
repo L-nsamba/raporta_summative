@@ -8,6 +8,8 @@ import 'package:raporta_frontend_backend_implementation/features/auth/presentati
 import 'package:raporta_frontend_backend_implementation/features/auth/presentation/bloc/auth_state.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/presentation/bloc/preferences_cubit.dart';
 import 'package:raporta_frontend_backend_implementation/features/profile/presentation/bloc/preferences_state.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/features/notifications/presentation/bloc/notifications_event.dart';
 
 class RaportaApp extends StatelessWidget {
   const RaportaApp({super.key});
@@ -23,6 +25,10 @@ class RaportaApp extends StatelessWidget {
         BlocProvider<PreferencesCubit>(
           create: (_) => sl<PreferencesCubit>()..loadPreferences(),
         ),
+
+        BlocProvider<NotificationsBloc>(
+          create: (_) => sl<NotificationsBloc>(),
+        ),
       ],
 
       child: MultiBlocListener(
@@ -30,11 +36,13 @@ class RaportaApp extends StatelessWidget {
           // Reload account-specific preferences when
           // the authenticated user changes.
           BlocListener<AuthBloc, AuthState>(
-            listenWhen: (previous, current) {
-              return previous.user?.userId != current.user?.userId;
-            },
+            listenWhen: (previous, current) =>
+                previous.user?.userId != current.user?.userId,
             listener: (context, state) {
-              context.read<PreferencesCubit>().loadPreferences();
+              final userId = state.user?.userId;
+              if (userId != null) {
+                context.read<NotificationsBloc>().add(NotificationsStarted(userId));
+              }
             },
           ),
 
