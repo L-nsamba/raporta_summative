@@ -191,9 +191,7 @@ class AppRouter {
         builder: (context, state) {
           final reportId = state.pathParameters['reportId']!;
 
-          return OfficialReportDetailPage(
-            reportId: reportId,
-          );
+          return OfficialReportDetailPage(reportId: reportId);
         },
       ),
 

@@ -26,7 +26,8 @@ class NotificationModel extends AppNotification {
 
     // firestore briefly reports a pending FieldValue.serverTimestamp()
     // write as null before the server resolves it. fall back instead of crashing
-    final createdAt = (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+    final createdAt =
+        (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
     final updatedAt = (data['updatedAt'] as Timestamp?)?.toDate() ?? createdAt;
 
     return NotificationModel(

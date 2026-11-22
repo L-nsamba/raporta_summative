@@ -54,7 +54,11 @@ class _ProfileView extends StatelessWidget {
   ) {
     switch (destination) {
       case AppDrawerDestination.dashboard:
-        context.go(isOfficial ? RouteNames.officialDashboard : RouteNames.citizenDashboard);
+        context.go(
+          isOfficial
+              ? RouteNames.officialDashboard
+              : RouteNames.citizenDashboard,
+        );
       case AppDrawerDestination.exploreReports:
         context.go(RouteNames.reports);
       case AppDrawerDestination.createReport:
@@ -66,7 +70,11 @@ class _ProfileView extends StatelessWidget {
       case AppDrawerDestination.reportQueue:
         context.go(RouteNames.reportQueue);
       case AppDrawerDestination.notifications:
-        context.go(isOfficial ? RouteNames.officialNotifications : RouteNames.notifications);
+        context.go(
+          isOfficial
+              ? RouteNames.officialNotifications
+              : RouteNames.notifications,
+        );
       case AppDrawerDestination.profile:
         context.go(RouteNames.profile);
     }
@@ -151,8 +159,13 @@ class _ProfileView extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-              child: const Icon(Icons.person_outline, color: AppColors.background),
+              backgroundColor: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHigh,
+              child: const Icon(
+                Icons.person_outline,
+                color: AppColors.background,
+              ),
             ),
             title: const Text(
               'My Account',
@@ -168,7 +181,9 @@ class _ProfileView extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+              backgroundColor: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHigh,
               child: const Icon(Icons.logout, color: AppColors.background),
             ),
             title: const Text(

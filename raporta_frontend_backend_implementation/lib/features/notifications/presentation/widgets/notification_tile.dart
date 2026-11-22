@@ -79,7 +79,7 @@ class NotificationTile extends StatelessWidget {
               backgroundColor: iconData.color,
               child: Icon(iconData.icon, color: Colors.white, size: 18),
             ),
-            
+
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -88,8 +88,9 @@ class NotificationTile extends StatelessWidget {
                   Text(
                     notification.message,
                     style: TextStyle(
-                      fontWeight:
-                          notification.read ? FontWeight.normal : FontWeight.bold,
+                      fontWeight: notification.read
+                          ? FontWeight.normal
+                          : FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),

@@ -16,13 +16,20 @@ class ThemeToggleTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
         backgroundColor: theme.colorScheme.surfaceContainerHigh,
-        child: const Icon(Icons.dark_mode_outlined, color: AppColors.background),
+        child: const Icon(
+          Icons.dark_mode_outlined,
+          color: AppColors.background,
+        ),
       ),
-      title: const Text('Dark Mode', style: TextStyle(fontWeight: FontWeight.w600)),
+      title: const Text(
+        'Dark Mode',
+        style: TextStyle(fontWeight: FontWeight.w600),
+      ),
       subtitle: const Text('Change appearance of your app'),
       trailing: Switch(
         value: prefs.preferences.isDarkMode,
-        onChanged: (value) => context.read<PreferencesCubit>().updateDarkMode(value),
+        onChanged: (value) =>
+            context.read<PreferencesCubit>().updateDarkMode(value),
       ),
     );
   }

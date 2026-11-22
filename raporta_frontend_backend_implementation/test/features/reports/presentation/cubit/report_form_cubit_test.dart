@@ -455,5 +455,4 @@ void main() {
 
     expect(cubit.state.submissionStatus, FormSubmissionStatus.success);
   });
-
 }

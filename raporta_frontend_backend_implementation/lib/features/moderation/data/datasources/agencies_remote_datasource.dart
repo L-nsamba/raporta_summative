@@ -24,4 +24,3 @@ class AgenciesRemoteDataSourceImpl implements AgenciesRemoteDataSource {
     return agencies;
   }
 }
-

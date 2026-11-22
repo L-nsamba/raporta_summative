@@ -51,14 +51,17 @@ class VerifyEmailPage extends StatelessWidget {
                         onPressed: isBusy
                             ? null
                             : () => context.read<AuthBloc>().add(
-                                  AuthLogoutRequested(),
-                                ),
+                                AuthLogoutRequested(),
+                              ),
                         icon: const Icon(Icons.arrow_back),
                       ),
                       const SizedBox(width: 4),
                       const Text(
                         'Verify your email address',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                     ],
                   ),
@@ -66,7 +69,10 @@ class VerifyEmailPage extends StatelessWidget {
                   RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
-                      style: const TextStyle(color: Colors.black87, fontSize: 14),
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
                       children: [
                         const TextSpan(
                           text: 'We sent you a link to verify your email address ',
@@ -84,8 +90,8 @@ class VerifyEmailPage extends StatelessWidget {
                       onPressed: isBusy
                           ? null
                           : () => context.read<AuthBloc>().add(
-                                AuthEmailVerificationRequested(),
-                              ),
+                              AuthEmailVerificationRequested(),
+                            ),
                       child: RichText(
                         text: const TextSpan(
                           style: TextStyle(color: Colors.black87, fontSize: 14),
@@ -107,8 +113,8 @@ class VerifyEmailPage extends StatelessWidget {
                     onPressed: isBusy
                         ? null
                         : () => context.read<AuthBloc>().add(
-                              const AuthEmailVerificationCheckRequested(),
-                            ),
+                            const AuthEmailVerificationCheckRequested(),
+                          ),
                   ),
                   const SizedBox(height: 16),
                   Center(
@@ -116,8 +122,8 @@ class VerifyEmailPage extends StatelessWidget {
                       onPressed: isBusy
                           ? null
                           : () => context.read<AuthBloc>().add(
-                                AuthLogoutRequested(),
-                              ),
+                              AuthLogoutRequested(),
+                            ),
                       child: const Text('Sign out / Back to login'),
                     ),
                   ),

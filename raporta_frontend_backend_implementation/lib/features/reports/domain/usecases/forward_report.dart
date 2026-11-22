@@ -5,13 +5,7 @@ class ForwardReport {
 
   ForwardReport({required this.repository});
 
-  Future<void> call({
-    required String reportId,
-    required String agencyId,
-  }) {
-    return repository.forwardReport(
-      reportId: reportId,
-      agencyId: agencyId,
-    );
+  Future<void> call({required String reportId, required String agencyId}) {
+    return repository.forwardReport(reportId: reportId, agencyId: agencyId);
   }
 }

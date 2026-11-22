@@ -18,4 +18,3 @@ class DashboardState {
     this.errorMessage,
   });
 }
-
