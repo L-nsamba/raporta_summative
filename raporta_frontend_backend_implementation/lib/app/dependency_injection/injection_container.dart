@@ -185,7 +185,9 @@ Future<void> initializeDependencies() async {
 
   sl.registerLazySingleton(() => DeclineReport(repository: sl()));
 
-  sl.registerLazySingleton(() => DeleteReport(repository: sl()));
+  sl.registerLazySingleton<DeleteReport>(
+    () => DeleteReport(repository: sl<ReportsRepository>()),
+  );
 
   sl.registerLazySingleton(() => GetUpvotes(repository: sl()));
 
@@ -238,11 +240,12 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory(() => MyReportsCubit(getMyReports: sl()));
 
-  sl.registerFactory(
+  sl.registerFactory<ReportDetailsCubit>(
     () => ReportDetailsCubit(
-      getReportById: sl(),
-      getUpvotes: sl(),
-      toggleUpvote: sl(),
+      getReportById: sl<GetReportById>(),
+      getUpvotes: sl<GetUpvotes>(),
+      toggleUpvote: sl<ToggleUpvote>(),
+      deleteReport: sl<DeleteReport>(),
     ),
   );
 

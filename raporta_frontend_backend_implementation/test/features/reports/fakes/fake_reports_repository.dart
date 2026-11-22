@@ -15,6 +15,8 @@ class FakeReportsRepository implements ReportsRepository {
   bool shouldThrowUpdateStatusError = false;
   bool shouldThrowForwardError = false;
   bool shouldThrowDeclineError = false;
+  bool shouldThrowDeleteReportError = false;
+  String? deletedReportId;
 
   List<Report> myReports = [];
   List<Upvote> upvotes = [];
@@ -161,5 +163,11 @@ class FakeReportsRepository implements ReportsRepository {
   }
 
   @override
-  Future<void> deleteReport(String reportId) async {}
+  Future<void> deleteReport(String reportId) async {
+    if (shouldThrowDeleteReportError) {
+      throw Exception('Failed to delete report');
+    }
+
+    deletedReportId = reportId;
+  }
 }

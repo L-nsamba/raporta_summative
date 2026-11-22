@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:raporta_frontend_backend_implementation/core/enums/report_status.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/domain/entities/upvotes.dart';
+import 'package:raporta_frontend_backend_implementation/features/reports/domain/usecases/delete_report.dart';
 
 import '../../domain/usecases/get_report_by_id.dart';
 import '../../domain/usecases/get_upvote.dart';
@@ -11,11 +13,13 @@ class ReportDetailsCubit extends Cubit<ReportDetailsState> {
   final GetReportById getReportById;
   final GetUpvotes getUpvotes;
   final ToggleUpvote toggleUpvote;
+  final DeleteReport deleteReport;
 
   ReportDetailsCubit({
     required this.getReportById,
     required this.getUpvotes,
     required this.toggleUpvote,
+    required this.deleteReport,
   }) : super(const ReportDetailsState());
 
   // LOAD REPORT DETAILS
@@ -115,6 +119,62 @@ class ReportDetailsCubit extends Cubit<ReportDetailsState> {
     required String userId,
   }) async {
     await loadReportDetails(reportId: reportId, userId: userId);
+  }
+
+  Future<bool> deleteCurrentReport({required String userId}) async {
+    if (isClosed ||
+        state.status != ReportDetailsStatus.loaded ||
+        state.isDeleting ||
+        state.deletionSucceeded) {
+      return false;
+    }
+
+    final report = state.report;
+
+    if (report == null ||
+        report.userId != userId ||
+        report.status != ReportStatus.pending ||
+        report.deletedAt != null) {
+      return false;
+    }
+
+    emit(
+      state.copyWith(
+        isDeleting: true,
+        deletionSucceeded: false,
+        clearError: true,
+      ),
+    );
+
+    try {
+      await deleteReport(report.reportId);
+
+      if (isClosed) return false;
+
+      emit(
+        state.copyWith(
+          isDeleting: false,
+          deletionSucceeded: true,
+          clearError: true,
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      if (isClosed) return false;
+
+      emit(
+        state.copyWith(
+          isDeleting: false,
+          deletionSucceeded: false,
+          errorMessage:
+              'Unable to delete this report. It may have '
+              'already been reviewed. Please refresh and try again.',
+        ),
+      );
+
+      return false;
+    }
   }
 
   // RESET STATE

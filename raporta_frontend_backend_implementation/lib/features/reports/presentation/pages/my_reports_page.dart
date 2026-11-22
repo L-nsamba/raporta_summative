@@ -40,10 +40,19 @@ class _MyReportsView extends StatelessWidget {
     await context.read<MyReportsCubit>().refreshReports(userId);
   }
 
-  void _openReport(BuildContext context, String reportId) {
-    final path = '/citizen/reports/${Uri.encodeComponent(reportId)}';
+  Future<void> _openReport(BuildContext context, String reportId) async {
+    final path = RouteNames.reportDetails.replaceFirst(
+      ':reportId',
+      Uri.encodeComponent(reportId),
+    );
 
-    context.push(path);
+    final deleted = await context.push<bool>(path);
+
+    if (!context.mounted) return;
+
+    if (deleted == true) {
+      await context.read<MyReportsCubit>().refreshReports(userId);
+    }
   }
 
   // Handles navigation from the shared drawer.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:raporta_frontend_backend_implementation/app/dependency_injection/injection_container.dart';
+import 'package:raporta_frontend_backend_implementation/core/enums/report_status.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/widgets/info_row.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/widgets/message_view.dart';
 import 'package:raporta_frontend_backend_implementation/features/reports/presentation/widgets/report_photo.dart';
@@ -71,6 +72,51 @@ class _ReportDetailsView extends StatelessWidget {
     );
 
     return formatted[0].toUpperCase() + formatted.substring(1);
+  }
+
+  Future<void> _deleteReport(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Report?'),
+        content: const Text(
+          'This pending report will be removed from your '
+          'active reports. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete Report'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final success = await context
+        .read<ReportDetailsCubit>()
+        .deleteCurrentReport(userId: userId);
+
+    if (!context.mounted) return;
+
+    if (success) {
+      context.pop(true);
+    } else {
+      final errorMessage = context
+          .read<ReportDetailsCubit>()
+          .state
+          .errorMessage;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage ?? 'Unable to delete report.')),
+      );
+    }
   }
 
   @override
@@ -212,6 +258,35 @@ class _ReportDetailsView extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     StatusInformation(report: report),
+
+                    if (report.userId == userId &&
+                        report.status == ReportStatus.pending &&
+                        report.deletedAt == null) ...[
+                      const SizedBox(height: 24),
+
+                      OutlinedButton.icon(
+                        onPressed: state.isDeleting
+                            ? null
+                            : () => _deleteReport(context),
+                        icon: state.isDeleting
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.delete_outline),
+                        label: Text(
+                          state.isDeleting
+                              ? 'Deleting Report...'
+                              : 'Delete Report',
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ],
 
                     if (report.status.isPublic) ...[
                       const SizedBox(height: 24),
