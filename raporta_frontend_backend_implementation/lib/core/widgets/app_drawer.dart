@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../features/notifications/presentation/bloc/notifications_bloc.dart';
+import '../../features/profile/presentation/bloc/preferences_cubit.dart';
 import '../enums/user_role.dart';
 import '../theme/app_colors.dart';
 
@@ -91,7 +92,11 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final unreadCount = unreadNotificationsCount ??
+    final notificationsEnabled = context.select<PreferencesCubit?, bool>(
+      (cubit) => cubit?.state.preferences.notificationsEnabled ?? true,
+    );
+    final unreadCount =
+        unreadNotificationsCount ??
         context.select<NotificationsBloc?, int>(
           (bloc) => bloc?.state.unreadCount ?? 0,
         );
@@ -134,6 +139,7 @@ class AppDrawer extends StatelessWidget {
                       title: Text(_label(destination)),
                       trailing:
                           destination == AppDrawerDestination.notifications &&
+                              notificationsEnabled &&
                               unreadCount > 0
                           ? Container(
                               padding: const EdgeInsets.symmetric(

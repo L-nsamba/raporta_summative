@@ -1,13 +1,75 @@
+import 'dart:async';
+
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:raporta_frontend_backend_implementation/core/widgets/app_drawer.dart';
 import 'package:raporta_frontend_backend_implementation/core/enums/user_role.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/domain/entities/user_preferences.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/presentation/bloc/preferences_cubit.dart';
+import 'package:raporta_frontend_backend_implementation/features/profile/presentation/bloc/preferences_state.dart';
+
+class MockPreferencesCubit extends MockCubit<PreferencesState>
+    implements PreferencesCubit {}
 
 void main() {
   Future<void> openDrawer(WidgetTester tester) async {
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
+  }
+
+  for (final role in UserRole.values) {
+    testWidgets('notification badge follows preferences for ${role.name}', (
+      tester,
+    ) async {
+      final preferences = MockPreferencesCubit();
+      final states = StreamController<PreferencesState>();
+      addTearDown(states.close);
+      addTearDown(preferences.close);
+      whenListen(
+        preferences,
+        states.stream,
+        initialState: const PreferencesState(),
+      );
+
+      await tester.pumpWidget(
+        BlocProvider<PreferencesCubit>.value(
+          value: preferences,
+          child: MaterialApp(
+            home: Scaffold(
+              appBar: AppBar(),
+              drawer: AppDrawer(
+                role: role,
+                userName: 'Test User',
+                unreadNotificationsCount: 3,
+                onDestinationSelected: (_) {},
+                onSignOut: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await openDrawer(tester);
+      expect(find.text('3'), findsOneWidget);
+
+      states.add(
+        const PreferencesState(
+          preferences: UserPreferences(
+            notificationsEnabled: false,
+            isDarkMode: false,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('3'), findsNothing);
+      expect(find.text('Notifications'), findsOneWidget);
+
+      states.add(const PreferencesState());
+      await tester.pumpAndSettle();
+      expect(find.text('3'), findsOneWidget);
+    });
   }
 
   testWidgets('citizen sees the correct navigation options', (
