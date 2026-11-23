@@ -5,8 +5,8 @@ Designated officials can review submissions, manage report statuses, and forward
 The initial implementation focuses on Kimironko and Remera, Kigali.
 
 ## 1. Project Deliverables
-- Demo Video: In progress
-- Release APK: In progress
+- [**Demo Video**](https://www.youtube.com/watch?v=6wnQ0A3U5_k)
+- [**Release APK**](https://github.com/L-nsamba/raporta_summative/releases/tag/v1.0.0)
 - [**Final Project Report**](https://docs.google.com/document/d/1QA_W_lZFxNjiEKgVZ-R2DgpS38clrmVTCOt380G9q44/edit?usp=sharing)
 - [**Entity Relationship Diagram**](https://drive.google.com/file/d/1JNqiCVqHo3U0s_VY3rtRTkPW2bGEXkEJ/view?usp=sharing)
 - [**Figma Prototype**](https://www.figma.com/design/hAHAg2h13itYEGSr6OCFF0/User-Research---Design-Figma-Board?node-id=0-1&t=kP0M9SphVV2D6z1u-1)
